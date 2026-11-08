@@ -340,3 +340,4 @@ const puppeteer = require('puppeteer');
   console.log('Portal tests captured!');
   await browser.close();
 })();
+

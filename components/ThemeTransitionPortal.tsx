@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { Sun, Moon } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface ThemeTransitionPortalProps {
   isTransitioning: boolean;
@@ -9,125 +8,531 @@ interface ThemeTransitionPortalProps {
   currentPhase: 'entering' | 'swapped';
 }
 
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  alpha: number;
+  size: number;
+}
+
 export default function ThemeTransitionPortal({
   isTransitioning,
   direction,
   currentPhase,
 }: ThemeTransitionPortalProps) {
-  if (!isTransitioning) return null;
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
 
-  const isStartingDark = direction === 'dark-to-light';
-  const isNowLight = currentPhase === 'swapped' ? isStartingDark : !isStartingDark;
+  useEffect(() => {
+    if (!isTransitioning) {
+      setIsClosing(false);
+      return;
+    }
+
+    // Trigger smooth exit fade in the final 170ms
+    const exitTimer = setTimeout(() => {
+      setIsClosing(true);
+    }, 1180);
+
+    return () => clearTimeout(exitTimer);
+  }, [isTransitioning]);
+
+  useEffect(() => {
+    if (!isTransitioning || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    const startTime = performance.now();
+    const particles: Particle[] = [];
+    let spawnedDiveParticles = false;
+    let spawnedEmergeParticles = false;
+
+    // Set high-DPI canvas dimensions
+    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+    const rect = canvas.getBoundingClientRect();
+    const width = rect.width || 450;
+    const height = rect.height || 134;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
+
+    const groundY = height * 0.70; // ground baseline
+    const portalX = width / 2;
+    const portalY = groundY;
+    const sunX = Math.max(54, width * 0.14);
+    const moonX = Math.min(width - 54, width * 0.86);
+
+    const isLTR = direction === 'light-to-dark';
+    const facingSign = isLTR ? 1 : -1;
+
+    function spawnParticles(x: number, y: number, count: number, upward = false) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: x + (Math.random() - 0.5) * 16,
+          y: y + (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 2.2,
+          vy: upward ? -(Math.random() * 2.5 + 1) : Math.random() * 2 - 1,
+          alpha: 1,
+          size: Math.random() * 2 + 1.2,
+        });
+      }
+    }
+
+    function updateParticles(dt: number) {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= dt * 2.2;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+    }
+
+    function drawParticles() {
+      for (const p of particles) {
+        ctx!.fillStyle = `rgba(197, 243, 106, ${Math.max(0, p.alpha)})`;
+        ctx!.shadowColor = '#C5F36A';
+        ctx!.shadowBlur = 6;
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx!.fill();
+        ctx!.shadowBlur = 0;
+      }
+    }
+
+    function drawStage(t: number) {
+      const isSwapped = t >= 680;
+
+      // 1. Subtle horizontal ground track
+      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.10)';
+      ctx!.lineWidth = 1.5;
+      ctx!.beginPath();
+      ctx!.moveTo(sunX - 16, groundY);
+      ctx!.lineTo(moonX + 16, groundY);
+      ctx!.stroke();
+
+      // 2. Sun Node on Left
+      const sunActive = isLTR ? t < 680 : t >= 1150;
+      drawSunNode(sunX, groundY - 16, sunActive);
+
+      // 3. Moon Node on Right
+      const moonActive = isLTR ? t >= 1150 : t < 680;
+      drawMoonNode(moonX, groundY - 16, moonActive);
+
+      // 4. Center 3D Glowing Portal Hole
+      drawPortalHole(portalX, portalY, isSwapped);
+    }
+
+    function drawSunNode(x: number, y: number, active: boolean) {
+      // Outer disc
+      ctx!.beginPath();
+      ctx!.arc(x, y, 16, 0, Math.PI * 2);
+      ctx!.fillStyle = active ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255, 255, 255, 0.04)';
+      ctx!.fill();
+      ctx!.strokeStyle = active ? 'rgba(245, 158, 11, 0.65)' : 'rgba(255, 255, 255, 0.10)';
+      ctx!.lineWidth = 1.5;
+      ctx!.stroke();
+
+      // Sun Core Icon
+      ctx!.strokeStyle = active ? '#F59E0B' : '#71717a';
+      ctx!.fillStyle = active ? '#F59E0B' : 'transparent';
+      ctx!.lineWidth = 1.8;
+      ctx!.shadowColor = active ? 'rgba(245, 158, 11, 0.75)' : 'transparent';
+      ctx!.shadowBlur = active ? 12 : 0;
+
+      ctx!.beginPath();
+      ctx!.arc(x, y, 5.5, 0, Math.PI * 2);
+      ctx!.stroke();
+
+      // 8 Radiating Rays
+      const rayLen = 3.5;
+      const rayOffset = 8.5;
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4;
+        const x1 = x + Math.cos(angle) * rayOffset;
+        const y1 = y + Math.sin(angle) * rayOffset;
+        const x2 = x + Math.cos(angle) * (rayOffset + rayLen);
+        const y2 = y + Math.sin(angle) * (rayOffset + rayLen);
+        ctx!.beginPath();
+        ctx!.moveTo(x1, y1);
+        ctx!.lineTo(x2, y2);
+        ctx!.stroke();
+      }
+      ctx!.shadowBlur = 0;
+    }
+
+    function drawMoonNode(x: number, y: number, active: boolean) {
+      ctx!.beginPath();
+      ctx!.arc(x, y, 16, 0, Math.PI * 2);
+      ctx!.fillStyle = active ? 'rgba(197, 243, 106, 0.16)' : 'rgba(255, 255, 255, 0.04)';
+      ctx!.fill();
+      ctx!.strokeStyle = active ? 'rgba(197, 243, 106, 0.65)' : 'rgba(255, 255, 255, 0.10)';
+      ctx!.lineWidth = 1.5;
+      ctx!.stroke();
+
+      // Crescent Moon Icon
+      ctx!.strokeStyle = active ? '#C5F36A' : '#71717a';
+      ctx!.fillStyle = active ? '#C5F36A' : '#71717a';
+      ctx!.shadowColor = active ? 'rgba(197, 243, 106, 0.75)' : 'transparent';
+      ctx!.shadowBlur = active ? 12 : 0;
+
+      ctx!.save();
+      ctx!.translate(x - 1, y);
+      ctx!.beginPath();
+      ctx!.arc(0, 0, 6.8, -Math.PI * 0.45, Math.PI * 0.45, false);
+      ctx!.arc(-3.2, 0, 5.8, Math.PI * 0.35, -Math.PI * 0.35, true);
+      ctx!.closePath();
+      ctx!.fill();
+      ctx!.restore();
+      ctx!.shadowBlur = 0;
+    }
+
+    function drawPortalHole(cx: number, cy: number, isSwapped: boolean) {
+      const rx = 44;
+      const ry = 12;
+
+      // 1. Ambient outer glow pool beneath hole
+      const glowGrad = ctx!.createRadialGradient(cx, cy + 3, 10, cx, cy + 3, 62);
+      glowGrad.addColorStop(0, 'rgba(197, 243, 106, 0.24)');
+      glowGrad.addColorStop(1, 'rgba(197, 243, 106, 0)');
+      ctx!.fillStyle = glowGrad;
+      ctx!.beginPath();
+      ctx!.ellipse(cx, cy + 3, 62, 22, 0, 0, Math.PI * 2);
+      ctx!.fill();
+
+      // 2. Subterranean 3D Void Depth Gradient
+      const voidGrad = ctx!.createRadialGradient(cx, cy + 6, 0, cx, cy, rx);
+      voidGrad.addColorStop(0, '#000000');
+      voidGrad.addColorStop(0.65, '#04070a');
+      voidGrad.addColorStop(1, '#0c131a');
+
+      ctx!.fillStyle = voidGrad;
+      ctx!.beginPath();
+      ctx!.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx!.fill();
+
+      // 3. Deep inner shadow rim for true 3D depression perspective
+      ctx!.strokeStyle = 'rgba(0, 0, 0, 0.95)';
+      ctx!.lineWidth = 3.5;
+      ctx!.beginPath();
+      ctx!.ellipse(cx, cy + 1, rx - 2, ry - 1, 0, Math.PI, Math.PI * 2);
+      ctx!.stroke();
+
+      // 4. Glowing neon outer rim
+      ctx!.strokeStyle = '#C5F36A';
+      ctx!.lineWidth = 2.2;
+      ctx!.shadowColor = 'rgba(197, 243, 106, 0.85)';
+      ctx!.shadowBlur = 15;
+      ctx!.beginPath();
+      ctx!.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx!.stroke();
+      ctx!.shadowBlur = 0;
+    }
+
+    function drawLimb(
+      sx: number,
+      sy: number,
+      shoulderAngle: number,
+      len1: number,
+      elbowBend: number,
+      len2: number
+    ) {
+      const elbowX = sx + Math.sin(shoulderAngle) * len1;
+      const elbowY = sy + Math.cos(shoulderAngle) * len1;
+      const handX = elbowX + Math.sin(shoulderAngle + elbowBend) * len2;
+      const handY = elbowY + Math.cos(shoulderAngle + elbowBend) * len2;
+
+      ctx!.beginPath();
+      ctx!.moveTo(sx, sy);
+      ctx!.lineTo(elbowX, elbowY);
+      ctx!.lineTo(handX, handY);
+      ctx!.stroke();
+    }
+
+    function drawLeg(
+      hx: number,
+      hy: number,
+      hipAngle: number,
+      kneeBend: number,
+      len1: number,
+      len2: number
+    ) {
+      const kneeX = hx + Math.sin(hipAngle) * len1;
+      const kneeY = hy + Math.cos(hipAngle) * len1;
+      const footX = kneeX + Math.sin(hipAngle + kneeBend) * len2;
+      const footY = kneeY + Math.cos(hipAngle + kneeBend) * len2;
+
+      ctx!.beginPath();
+      ctx!.moveTo(hx, hy);
+      ctx!.lineTo(kneeX, kneeY);
+      ctx!.lineTo(footX, footY);
+      ctx!.stroke();
+    }
+
+    function drawStickman(
+      x: number,
+      y: number,
+      scale: number,
+      rotation: number,
+      walkCycle: number | null,
+      diveMode: 'dive' | 'emerge' | null
+    ) {
+      ctx!.save();
+      ctx!.translate(x, y);
+      ctx!.scale(scale, scale);
+      ctx!.rotate(rotation);
+
+      ctx!.strokeStyle = '#C5F36A';
+      ctx!.fillStyle = '#C5F36A';
+      ctx!.lineWidth = 2.4;
+      ctx!.lineCap = 'round';
+      ctx!.lineJoin = 'round';
+      ctx!.shadowColor = 'rgba(197, 243, 106, 0.6)';
+      ctx!.shadowBlur = 6;
+
+      const headR = 4.2;
+      let headX = 0,
+        headY = -34;
+      const neckX = 0;
+      let neckY = -27;
+      const pelvisX = 0;
+      let pelvisY = -14;
+
+      let leftArmAngle = 0;
+      let rightArmAngle = 0;
+      let leftLegAngle = 0;
+      let rightLegAngle = 0;
+      let leftKneeAngle = 0;
+      let rightKneeAngle = 0;
+
+      if (diveMode === 'dive') {
+        // Streamlined Olympic diver pose
+        leftArmAngle = -Math.PI * 0.86;
+        rightArmAngle = -Math.PI * 0.83;
+        leftLegAngle = Math.PI * 0.12;
+        rightLegAngle = Math.PI * 0.10;
+        leftKneeAngle = 0;
+        rightKneeAngle = 0;
+      } else if (diveMode === 'emerge') {
+        // Dynamic emergence leap
+        leftArmAngle = -Math.PI * 0.55;
+        rightArmAngle = Math.PI * 0.22;
+        leftLegAngle = -Math.PI * 0.28;
+        rightLegAngle = Math.PI * 0.35;
+        leftKneeAngle = 0.5;
+        rightKneeAngle = 0.75;
+      } else if (walkCycle !== null) {
+        // Natural running kinematics
+        const s = Math.sin(walkCycle);
+
+        leftLegAngle = s * 0.65;
+        rightLegAngle = -s * 0.65;
+
+        // Knee bends on recovery
+        leftKneeAngle = Math.max(0, -s) * 0.7;
+        rightKneeAngle = Math.max(0, s) * 0.7;
+
+        // Arms swing in opposition to legs
+        leftArmAngle = -s * 0.6;
+        rightArmAngle = s * 0.6;
+
+        // Vertical step bobbing
+        const bob = -Math.abs(s) * 2.2;
+        headY += bob;
+        neckY += bob;
+        pelvisY += bob * 0.7;
+      }
+
+      // 1. Head
+      ctx!.beginPath();
+      ctx!.arc(headX, headY, headR, 0, Math.PI * 2);
+      ctx!.fill();
+
+      // 2. Torso
+      ctx!.beginPath();
+      ctx!.moveTo(neckX, neckY);
+      ctx!.lineTo(pelvisX, pelvisY);
+      ctx!.stroke();
+
+      // 3. Back Arm
+      drawLimb(neckX, neckY + 2, rightArmAngle, 7, 0.4, 7);
+
+      // 4. Back Leg
+      drawLeg(pelvisX, pelvisY, rightLegAngle, rightKneeAngle, 7.5, 7.5);
+
+      // 5. Front Leg
+      drawLeg(pelvisX, pelvisY, leftLegAngle, leftKneeAngle, 7.5, 7.5);
+
+      // 6. Front Arm
+      drawLimb(neckX, neckY + 2, leftArmAngle, 7, 0.3, 7);
+
+      ctx!.restore();
+    }
+
+    let lastFrameTime = performance.now();
+
+    function frameLoop(now: number) {
+      const elapsed = now - startTime;
+      const dt = (now - lastFrameTime) / 1000;
+      lastFrameTime = now;
+
+      ctx!.clearRect(0, 0, width, height);
+
+      drawStage(elapsed);
+      updateParticles(dt);
+      drawParticles();
+
+      // Kinematic Timeline Logic:
+      // 0 to 160ms: Standing at departure node
+      // 160 to 520ms: Running to portal
+      // 520 to 700ms: Leaping and diving headfirst into hole
+      // 700 to 750ms: Fully submerged
+      // 750 to 980ms: Bursting upwards out of portal, landing
+      // 980 to 1180ms: Walking to destination node
+      // 1180 to 1350ms: Reached destination, capsule exit
+
+      let charX = 0;
+      let charY = groundY;
+      let scale = 1;
+      let rotation = 0;
+      let walkCycle: number | null = null;
+      let diveMode: 'dive' | 'emerge' | null = null;
+      let visible = true;
+
+      const portalLipOffset = 36;
+      const startX = isLTR ? sunX + 18 : moonX - 18;
+      const approachX = isLTR ? portalX - portalLipOffset : portalX + portalLipOffset;
+      const emergeX = isLTR ? portalX + portalLipOffset : portalX - portalLipOffset;
+      const destX = isLTR ? moonX - 18 : sunX + 18;
+
+      if (elapsed < 160) {
+        charX = startX;
+        charY = groundY;
+        walkCycle = 0;
+        rotation = 0;
+      } else if (elapsed >= 160 && elapsed < 520) {
+        const p = (elapsed - 160) / 360;
+        charX = startX + (approachX - startX) * p;
+        charY = groundY;
+        walkCycle = (elapsed - 160) * 0.024;
+        rotation = facingSign * 0.08;
+      } else if (elapsed >= 520 && elapsed < 700) {
+        const p = (elapsed - 520) / 180;
+        diveMode = 'dive';
+        charX = approachX + (portalX - approachX) * p;
+
+        // Parabolic jump arc: jumps up 15px, then plunges down into portal depth
+        const jumpArc = -16 * Math.sin(p * Math.PI);
+        const plunge = 20 * Math.pow(p, 2);
+        charY = groundY + jumpArc + plunge;
+
+        // Tilt forward into headfirst dive
+        rotation = facingSign * (p * 1.35);
+
+        // Scale shrinks into the hole
+        scale = Math.max(0.18, 1 - p * 0.82);
+
+        if (p > 0.6 && !spawnedDiveParticles) {
+          spawnParticles(portalX, portalY, 6, false);
+          spawnedDiveParticles = true;
+        }
+
+        if (p > 0.88) {
+          visible = false;
+        }
+      } else if (elapsed >= 700 && elapsed < 750) {
+        visible = false;
+      } else if (elapsed >= 750 && elapsed < 980) {
+        const p = (elapsed - 750) / 230;
+        diveMode = 'emerge';
+        charX = portalX + (emergeX - portalX) * p;
+
+        if (p < 0.2 && !spawnedEmergeParticles) {
+          spawnParticles(portalX, portalY, 8, true);
+          spawnedEmergeParticles = true;
+        }
+
+        // Upward emergence arc out of hole
+        const leapArc = -20 * Math.sin(p * Math.PI);
+        charY = groundY + leapArc;
+
+        // Untwist rotation back to ground alignment
+        rotation = facingSign * ((1 - p) * -0.6);
+
+        // Scale expands from small back to full size
+        scale = Math.min(1, 0.25 + p * 0.75);
+      } else if (elapsed >= 980 && elapsed < 1180) {
+        const p = (elapsed - 980) / 200;
+        charX = emergeX + (destX - emergeX) * p;
+        charY = groundY;
+        walkCycle = (elapsed - 980) * 0.024;
+        rotation = facingSign * 0.08;
+      } else {
+        charX = destX;
+        charY = groundY;
+        walkCycle = 0;
+        rotation = 0;
+      }
+
+      if (visible) {
+        ctx!.save();
+        if (!isLTR) {
+          // Flip character horizontally for leftward journey
+          ctx!.translate(charX, 0);
+          ctx!.scale(-1, 1);
+          ctx!.translate(-charX, 0);
+        }
+        drawStickman(charX, charY, scale, rotation, walkCycle, diveMode);
+        ctx!.restore();
+      }
+
+      if (elapsed < 1350) {
+        animationFrameId = requestAnimationFrame(frameLoop);
+      }
+    }
+
+    animationFrameId = requestAnimationFrame(frameLoop);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isTransitioning, direction]);
+
+  if (!isTransitioning) return null;
 
   return (
     <div
-      className={`absolute right-0 top-full mt-3 z-50 origin-top-right w-[calc(100vw-32px)] max-w-[480px] sm:w-[480px] h-[150px] sm:h-[165px] rounded-3xl p-4 sm:p-5 overflow-hidden shadow-2xl transition-all duration-300 animate-in fade-in zoom-in-95 border ${
-        isNowLight
-          ? 'bg-[#f4efe6] border-[#ded5c5] text-zinc-800 shadow-amber-950/15'
-          : 'bg-[#12151b] border-[#252c38] text-zinc-100 shadow-black/80'
+      className={`absolute right-0 top-full mt-2.5 z-50 origin-top-right w-[calc(100vw-32px)] max-w-[450px] h-[134px] rounded-[28px] overflow-hidden border shadow-2xl transition-all duration-200 pointer-events-auto ${
+        isClosing ? 'opacity-0 scale-95' : 'animate-in fade-in zoom-in-95 opacity-100 scale-100'
+      } ${
+        currentPhase === 'swapped'
+          ? direction === 'dark-to-light'
+            ? 'bg-[#181d24]/95 border-[#2c3747] text-white shadow-black/80'
+            : 'bg-[#111419]/95 border-[#232b38] text-white shadow-black/80'
+          : direction === 'dark-to-light'
+          ? 'bg-[#111419]/95 border-[#232b38] text-white shadow-black/80'
+          : 'bg-[#181d24]/95 border-[#2c3747] text-white shadow-black/80'
       }`}
       style={{
-        // subtle perspective for depth
-        perspective: '800px',
+        boxShadow:
+          '0 24px 60px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
       }}
       aria-live="polite"
       aria-label="Theme transition in progress"
     >
-      {/* Subtle Ambient Glow inside panel */}
-      <div
-        className={`absolute -top-10 -left-10 w-40 h-40 rounded-full blur-2xl pointer-events-none transition-colors duration-500 ${
-          isNowLight ? 'bg-amber-400/20' : 'bg-[#C5F36A]/15'
-        }`}
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full block"
+        style={{ width: '100%', height: '100%' }}
       />
-
-      {/* Header Status Label */}
-      <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-widest uppercase mb-1">
-        <span className={isNowLight ? 'text-amber-800' : 'text-[#C5F36A]'}>
-          {direction === 'dark-to-light' ? '● ENTERING LIGHT MODE' : '● ENTERING DARK MODE'}
-        </span>
-        <span className={isNowLight ? 'text-zinc-500' : 'text-zinc-400'}>
-          PORTAL SHIFT
-        </span>
-      </div>
-
-      {/* Ground Track */}
-      <div
-        className={`absolute left-6 right-6 bottom-8 sm:bottom-9 h-[2px] rounded-full transition-colors duration-500 ${
-          isNowLight
-            ? 'bg-gradient-to-r from-zinc-300 via-zinc-400 to-zinc-300'
-            : 'bg-gradient-to-r from-zinc-800 via-zinc-700 to-zinc-800'
-        }`}
-      />
-
-      {/* Sun Icon on the Left */}
-      <div
-        className={`absolute left-6 bottom-5 sm:bottom-6 w-9 h-9 rounded-full flex items-center justify-center shadow-lg border transition-all duration-500 ${
-          !isNowLight
-            ? 'bg-zinc-900 border-zinc-700 text-amber-400/70 shadow-black/40'
-            : 'bg-amber-100 border-amber-300 text-amber-600 shadow-amber-500/25 ring-2 ring-amber-400/30'
-        }`}
-      >
-        <Sun className="w-4 h-4 fill-current" />
-      </div>
-
-      {/* Moon Icon on the Right */}
-      <div
-        className={`absolute right-6 bottom-5 sm:bottom-6 w-9 h-9 rounded-full flex items-center justify-center shadow-lg border transition-all duration-500 ${
-          !isNowLight
-            ? 'bg-zinc-900 border-[#C5F36A]/40 text-[#C5F36A] shadow-[#C5F36A]/20 ring-2 ring-[#C5F36A]/30'
-            : 'bg-zinc-100 border-zinc-300 text-zinc-400 shadow-zinc-300/40'
-        }`}
-      >
-        <Moon className="w-4 h-4 fill-current" />
-      </div>
-
-      {/* 3D Portal Hole in the Middle */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-5 sm:bottom-6 w-28 h-8 z-10 pointer-events-none">
-        <div
-          className={`w-full h-full rounded-[50%] transition-all duration-500 ${
-            isNowLight
-              ? 'bg-[radial-gradient(ellipse_at_center,#18181b_20%,#3f3f46_70%,#71717a_100%)] border-2 border-amber-500 shadow-[inset_0_4px_12px_rgba(0,0,0,0.85),0_0_20px_rgba(245,158,11,0.5)]'
-              : 'bg-[radial-gradient(ellipse_at_center,#000000_20%,#090d14_70%,#182130_100%)] border-2 border-[#C5F36A] shadow-[inset_0_4px_12px_rgba(0,0,0,0.95),0_0_22px_rgba(197,243,106,0.6)]'
-          }`}
-        />
-      </div>
-
-      {/* Animated Lime-Green Stickman Character Journey */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className={`theme-char-journey absolute bottom-8 sm:bottom-9 left-0 w-8 h-12 z-20 ${
-            direction === 'light-to-dark' ? 'journey-ltr' : 'journey-rtl'
-          }`}
-        >
-          <svg
-            viewBox="0 0 32 48"
-            width="32"
-            height="48"
-            fill="none"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="stroke-[#C5F36A]"
-          >
-            {/* Head and Torso with animated body bobbing */}
-            <g className="theme-body-bob">
-              <circle
-                cx="16"
-                cy="8"
-                r="4.5"
-                className="fill-[#C5F36A]"
-              />
-              <line x1="16" y1="13" x2="16" y2="28" />
-            </g>
-            {/* Arms with animated swing */}
-            <path className="theme-arm-back" d="M16 18 L9 24" />
-            <path className="theme-arm-front" d="M16 18 L23 24" />
-            {/* Legs with animated swing */}
-            <path className="theme-leg-back" d="M16 28 L10 42" />
-            <path className="theme-leg-front" d="M16 28 L22 42" />
-          </svg>
-        </div>
-      </div>
     </div>
   );
 }

@@ -2,6 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS Property Registrations for Smooth Color Interpolation */
+@property --bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #0B0E0C;
+}
+@property --bg-elevated {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #141A16;
+}
+@property --surface {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1B221E;
+}
+@property --surface-card {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #151B17;
+}
+@property --surface-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #222B26;
+}
+@property --border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #252D27;
+}
+@property --border-strong {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #37423A;
+}
+@property --text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #F4F5EF;
+}
+@property --text-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #A5B49F;
+}
+@property --text-subtle {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #768371;
+}
+@property --accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #C5F36A;
+}
+@property --accent-contrast {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #0B0E0C;
+}
+
 :root {
   /* Light Theme Tokens */
   --bg: #F5F5EF;
@@ -54,7 +116,23 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-  transition: background-color 300ms ease, color 300ms ease;
+  transition: background-color 350ms cubic-bezier(0.4, 0, 0.2, 1), color 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Coordinated Theme Transition for Surface & Text Elements */
+header,
+nav,
+section,
+footer,
+main,
+.glass-panel,
+.glass-pill,
+.wood-shelf,
+button:not(.no-theme-trans),
+a:not(.no-theme-trans) {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-duration: 350ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Custom Scrollbar */
@@ -124,148 +202,6 @@ body {
   background-image: 
     linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-}
-
-/* Theme Transition Portal Stickman Journey */
-.theme-arm-front {
-  transform-origin: 16px 18px;
-  animation: themeArmSwing 0.22s ease-in-out infinite alternate;
-}
-.theme-arm-back {
-  transform-origin: 16px 18px;
-  animation: themeArmSwingBack 0.22s ease-in-out infinite alternate;
-}
-.theme-leg-front {
-  transform-origin: 16px 28px;
-  animation: themeLegSwing 0.22s ease-in-out infinite alternate;
-}
-.theme-leg-back {
-  transform-origin: 16px 28px;
-  animation: themeLegSwingBack 0.22s ease-in-out infinite alternate;
-}
-
-.theme-body-bob {
-  animation: themeBodyBob 0.14s ease-in-out infinite alternate;
-}
-
-@keyframes themeBodyBob {
-  from { transform: translateY(0); }
-  to { transform: translateY(-2px); }
-}
-
-@keyframes themeArmSwing {
-  from { transform: rotate(-35deg); }
-  to { transform: rotate(35deg); }
-}
-@keyframes themeArmSwingBack {
-  from { transform: rotate(35deg); }
-  to { transform: rotate(-35deg); }
-}
-@keyframes themeLegSwing {
-  from { transform: rotate(38deg); }
-  to { transform: rotate(-38deg); }
-}
-@keyframes themeLegSwingBack {
-  from { transform: rotate(-38deg); }
-  to { transform: rotate(38deg); }
-}
-
-@keyframes journeyLTR {
-  0% {
-    transform: translateX(25px) translateY(0) scale(1) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    transform: translateX(65px) translateY(0) scale(1) rotate(0deg);
-    opacity: 1;
-  }
-  36% {
-    transform: translateX(190px) translateY(0) scale(1) rotate(6deg);
-    opacity: 1;
-  }
-  /* Dive down into the center portal hole */
-  45% {
-    transform: translateX(225px) translateY(-14px) scale(0.95) rotate(42deg);
-    opacity: 1;
-  }
-  52% {
-    transform: translateX(240px) translateY(10px) scale(0.55) rotate(75deg);
-    opacity: 0.25;
-  }
-  56% {
-    transform: translateX(240px) translateY(24px) scale(0.1) rotate(90deg);
-    opacity: 0;
-  }
-  /* Emerge from the hole into the new theme */
-  64% {
-    transform: translateX(240px) translateY(12px) scale(0.4) rotate(-35deg);
-    opacity: 0.35;
-  }
-  72% {
-    transform: translateX(265px) translateY(-16px) scale(0.95) rotate(-12deg);
-    opacity: 1;
-  }
-  80% {
-    transform: translateX(290px) translateY(0) scale(1) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(430px) translateY(0) scale(1) rotate(0deg);
-    opacity: 0;
-  }
-}
-
-@keyframes journeyRTL {
-  0% {
-    transform: translateX(430px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    transform: translateX(390px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 1;
-  }
-  36% {
-    transform: translateX(280px) translateY(0) scaleX(-1) scaleY(1) rotate(6deg);
-    opacity: 1;
-  }
-  /* Dive down into the center portal hole from right */
-  45% {
-    transform: translateX(250px) translateY(-14px) scaleX(-1) scaleY(0.95) rotate(42deg);
-    opacity: 1;
-  }
-  52% {
-    transform: translateX(240px) translateY(10px) scaleX(-1) scaleY(0.55) rotate(75deg);
-    opacity: 0.25;
-  }
-  56% {
-    transform: translateX(240px) translateY(24px) scale(0.1) rotate(-90deg);
-    opacity: 0;
-  }
-  /* Emerge from the hole towards left */
-  64% {
-    transform: translateX(240px) translateY(12px) scaleX(-1) scaleY(0.4) rotate(-35deg);
-    opacity: 0.35;
-  }
-  72% {
-    transform: translateX(215px) translateY(-16px) scaleX(-1) scaleY(0.95) rotate(-12deg);
-    opacity: 1;
-  }
-  80% {
-    transform: translateX(190px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(45px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 0;
-  }
-}
-
-.journey-ltr {
-  animation: journeyLTR 1.35s cubic-bezier(0.35, 0, 0.25, 1) forwards;
-}
-
-.journey-rtl {
-  animation: journeyRTL 1.35s cubic-bezier(0.35, 0, 0.25, 1) forwards;
 }
 
 /* About Section Roles & Skills Drop Animations */

@@ -104,12 +104,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme(nextTheme);
       localStorage.setItem('theme', nextTheme);
       setCurrentPhase('swapped');
-    }, 650);
+    }, 680);
 
-    // Finish transition after character emerges and runs off-screen
+    // Finish transition after character arrives and capsule smoothly closes
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 1400);
+    }, 1350);
   };
 
   return (
