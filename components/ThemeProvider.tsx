@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import ThemeTransitionPortal from './ThemeTransitionPortal';
 
 type Theme = 'light' | 'dark';
 
@@ -8,17 +9,22 @@ interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
   isDark: boolean;
+  isTransitioning: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'dark',
   toggleTheme: () => {},
   isDark: true,
+  isTransitioning: false,
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionDirection, setTransitionDirection] = useState<'dark-to-light' | 'light-to-dark'>('dark-to-light');
+  const [currentPhase, setCurrentPhase] = useState<'entering' | 'swapped'>('entering');
 
   useEffect(() => {
     // Determine initial theme on mount
@@ -62,19 +68,56 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleTheme = () => {
+    if (isTransitioning) return; // Prevent repeated clicks while animating
+
     const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    localStorage.setItem('theme', nextTheme);
-    if (nextTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    const direction = theme === 'dark' ? 'dark-to-light' : 'light-to-dark';
+
+    // Respect prefers-reduced-motion
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTheme(nextTheme);
+      localStorage.setItem('theme', nextTheme);
+      if (nextTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      return;
     }
+
+    // Begin interactive portal animation
+    setTransitionDirection(direction);
+    setCurrentPhase('entering');
+    setIsTransitioning(true);
+
+    // Swap theme at midpoint when character dives into the portal hole
+    setTimeout(() => {
+      if (nextTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      setTheme(nextTheme);
+      localStorage.setItem('theme', nextTheme);
+      setCurrentPhase('swapped');
+    }, 650);
+
+    // Finish transition after character emerges and runs off-screen
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 1400);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark' }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark', isTransitioning }}>
       {children}
+      {mounted && (
+        <ThemeTransitionPortal
+          isTransitioning={isTransitioning}
+          direction={transitionDirection}
+          currentPhase={currentPhase}
+        />
+      )}
     </ThemeContext.Provider>
   );
 }

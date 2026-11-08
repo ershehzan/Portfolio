@@ -1,23 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Code2, 
-  Terminal, 
-  Server, 
-  ShieldCheck, 
-  Cpu, 
-  GitBranch, 
-  Container, 
-  Award
-} from 'lucide-react';
+import Image from 'next/image';
 
 interface ToolNode {
   id: string;
   name: string;
   badge: string;
   category: 'CORE' | 'BACKEND' | 'SYSTEMS';
-  icon: React.ReactNode;
+  logo: string;
   description: string;
   highlight: string;
   coords: { x: number; y: number };
@@ -26,11 +17,11 @@ interface ToolNode {
 const TOOLS: ToolNode[] = [
   {
     id: 'cpp',
-    name: 'C++17 / STL',
+    name: 'C++ — C++17',
     badge: 'C++17',
     category: 'CORE',
-    icon: <Code2 className="w-5 h-5 sm:w-6 sm:h-6 text-theme-accent" />,
-    description: 'Modern C++ with Standard Template Library, memory management, and bitwise protocols.',
+    logo: '/assets/logos/cpp.png',
+    description: 'Modern C++ with Standard Template Library, memory management, zero-overhead abstractions, and bitwise protocols.',
     highlight: 'Used in SecureWebSocketClient-Cpp and Data-Structure implementations.',
     coords: { x: 18, y: 18 },
   },
@@ -39,7 +30,7 @@ const TOOLS: ToolNode[] = [
     name: 'Python',
     badge: '3.10+',
     category: 'CORE',
-    icon: <Terminal className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />,
+    logo: '/assets/logos/python.png',
     description: 'High-performance scripting, multi-objective optimization, and AI model orchestration.',
     highlight: 'Used in FlowForge AI Genetic Algorithms and CodeGuard backend.',
     coords: { x: 50, y: 12 },
@@ -49,8 +40,8 @@ const TOOLS: ToolNode[] = [
     name: 'FastAPI',
     badge: 'v0.121',
     category: 'BACKEND',
-    icon: <Server className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" />,
-    description: 'Asynchronous Python web framework with type hinting and high throughput.',
+    logo: '/assets/logos/fastapi.png',
+    description: 'Asynchronous Python web framework with type hinting, dependency injection, and high throughput.',
     highlight: 'Powers real-time production endpoints and sandbox verification APIs.',
     coords: { x: 82, y: 18 },
   },
@@ -59,19 +50,19 @@ const TOOLS: ToolNode[] = [
     name: 'Winsock & OpenSSL',
     badge: 'RFC 6455',
     category: 'SYSTEMS',
-    icon: <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />,
+    logo: '/assets/logos/winsock.png',
     description: 'Direct Windows socket networking (WSA) and TLS cryptographic stream handling.',
     highlight: 'Handcrafted WebSocket handshake and frame masking without external libraries.',
     coords: { x: 86, y: 50 },
   },
   {
-    id: 'linux',
-    name: 'Linux / POSIX',
-    badge: 'POSIX',
-    category: 'SYSTEMS',
-    icon: <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />,
-    description: 'Unix environment, shell scripting, process scheduling, and build automation.',
-    highlight: 'Core development environment for compiling, benchmarking, and debugging.',
+    id: 'sql',
+    name: 'SQL',
+    badge: 'Relational',
+    category: 'BACKEND',
+    logo: '/assets/logos/sql.png',
+    description: 'Relational database schema design, indexing strategies, and transactional ACID data integrity.',
+    highlight: 'Structured queries and persistent data modeling for backend applications.',
     coords: { x: 80, y: 82 },
   },
   {
@@ -79,18 +70,18 @@ const TOOLS: ToolNode[] = [
     name: 'Git & GitHub',
     badge: '150+ Commits',
     category: 'CORE',
-    icon: <GitBranch className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />,
-    description: 'Version control, multi-contributor collaboration, and CI/CD automation.',
+    logo: '/assets/logos/git-github.png',
+    description: 'Version control, multi-contributor collaboration, branching workflows, and CI/CD automation.',
     highlight: 'Active open-source developer on FlowForge AI, SecureWebSocketClient, and CodeGuard.',
     coords: { x: 50, y: 88 },
   },
   {
     id: 'docker',
-    name: 'Docker / Sandbox',
+    name: 'Docker',
     badge: 'Container',
     category: 'SYSTEMS',
-    icon: <Container className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />,
-    description: 'Containerized ephemeral execution environments for zero-trust code analysis.',
+    logo: '/assets/logos/docker.png',
+    description: 'Containerized ephemeral execution environments for zero-trust code analysis and reproducible builds.',
     highlight: 'Isolating Semgrep and Bandit scanners within CodeGuard.',
     coords: { x: 18, y: 82 },
   },
@@ -99,7 +90,7 @@ const TOOLS: ToolNode[] = [
     name: 'Codolio / DSA',
     badge: '1,335+',
     category: 'CORE',
-    icon: <Award className="w-5 h-5 sm:w-6 sm:h-6 text-rose-500" />,
+    logo: '/assets/logos/codolio.png',
     description: 'Advanced data structures, graph theory, dynamic programming, and complexity tuning.',
     highlight: '1,335 verified solved questions with a 574-day continuous streak.',
     coords: { x: 14, y: 50 },
@@ -190,22 +181,30 @@ export default function StackSection() {
               >
                 <button
                   onClick={() => setSelectedTool(tool)}
-                  className={`relative w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl sm:rounded-2xl bg-theme-surface flex items-center justify-center border shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer group ${
-                    isSelected ? 'border-theme-accent ring-2 ring-theme-accent/30' : 'border-theme-border hover:border-theme-borderStrong'
+                  className={`relative w-12 h-12 sm:w-16 sm:h-16 md:w-[72px] md:h-[72px] rounded-2xl md:rounded-[22px] bg-white flex items-center justify-center border shadow-xl hover:scale-110 active:scale-95 transition-all cursor-pointer group p-2 sm:p-2.5 ${
+                    isSelected ? 'ring-3 ring-theme-accent border-theme-accent shadow-theme-accent/20' : 'border-black/10 dark:border-white/20'
                   }`}
                   title={tool.name}
                   aria-label={`Select tool ${tool.name}`}
                 >
                   {/* Notification Count Badge */}
-                  <span className="absolute -top-1.5 -right-1.5 px-1 sm:px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[8px] sm:text-[9px] font-bold font-mono shadow-md">
+                  <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[8px] sm:text-[9px] font-bold font-mono shadow-md z-10 border-2 border-theme-card">
                     {tool.badge}
                   </span>
 
-                  {tool.icon}
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <Image
+                      src={tool.logo}
+                      alt={`${tool.name} logo`}
+                      fill
+                      sizes="(max-width: 640px) 48px, (max-width: 768px) 64px, 72px"
+                      className="object-contain p-0.5"
+                    />
+                  </div>
                 </button>
 
                 {/* Tool Name Label */}
-                <span className={`text-[9px] sm:text-[11px] font-mono font-medium mt-1 sm:mt-2 tracking-tight text-center max-w-[80px] truncate transition-colors ${
+                <span className={`text-[9px] sm:text-[11px] font-mono font-medium mt-1.5 sm:mt-2 tracking-tight text-center max-w-[85px] sm:max-w-[100px] truncate transition-colors ${
                   isSelected ? 'text-theme-accent font-bold' : 'text-theme-muted'
                 }`}>
                   {tool.name}
@@ -218,8 +217,14 @@ export default function StackSection() {
         {/* Selected Tool Details Bar */}
         <div className="mt-6 glass-panel rounded-2xl p-4 sm:p-5 border border-theme-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 rounded-xl bg-theme-surface border border-theme-border flex items-center justify-center shrink-0">
-              {selectedTool.icon}
+            <div className="relative w-12 h-12 rounded-2xl bg-white border border-theme-border flex items-center justify-center shrink-0 p-1.5 shadow-md">
+              <Image
+                src={selectedTool.logo}
+                alt={`${selectedTool.name} logo`}
+                fill
+                sizes="48px"
+                className="object-contain p-1"
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">

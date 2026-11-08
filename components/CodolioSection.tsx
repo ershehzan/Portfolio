@@ -13,7 +13,7 @@ export default function CodolioSection() {
           <span className="text-xs font-mono text-theme-accent font-bold tracking-widest uppercase">05</span>
           <span className="h-4 w-[1px] bg-theme-border" />
           <h2 className="text-xs font-mono tracking-widest text-theme-muted uppercase font-semibold">
-            PROBLEM SOLVING // CODOLIO & ALGORITHMIC PROOF
+            PROBLEM SOLVING // ALGORITHMIC RIGOR & CONTINUOUS PRACTICE
           </h2>
         </div>
 

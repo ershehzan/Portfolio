@@ -125,3 +125,97 @@ body {
     linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
 }
+
+/* Theme Transition Portal Stickman Journey */
+.theme-arm-front {
+  transform-origin: 16px 18px;
+  animation: themeArmSwing 0.22s ease-in-out infinite alternate;
+}
+.theme-arm-back {
+  transform-origin: 16px 18px;
+  animation: themeArmSwingBack 0.22s ease-in-out infinite alternate;
+}
+.theme-leg-front {
+  transform-origin: 16px 28px;
+  animation: themeLegSwing 0.22s ease-in-out infinite alternate;
+}
+.theme-leg-back {
+  transform-origin: 16px 28px;
+  animation: themeLegSwingBack 0.22s ease-in-out infinite alternate;
+}
+
+@keyframes themeArmSwing {
+  from { transform: rotate(-35deg); }
+  to { transform: rotate(35deg); }
+}
+@keyframes themeArmSwingBack {
+  from { transform: rotate(35deg); }
+  to { transform: rotate(-35deg); }
+}
+@keyframes themeLegSwing {
+  from { transform: rotate(38deg); }
+  to { transform: rotate(-38deg); }
+}
+@keyframes themeLegSwingBack {
+  from { transform: rotate(-38deg); }
+  to { transform: rotate(38deg); }
+}
+
+@keyframes themeCharJourney {
+  0% {
+    transform: translateX(20px) translateY(0) scale(1) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    transform: translateX(45px) translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  38% {
+    transform: translateX(140px) translateY(0) scale(1) rotate(6deg);
+    opacity: 1;
+  }
+  /* Dive down into the center portal hole */
+  46% {
+    transform: translateX(180px) translateY(-14px) scale(0.95) rotate(42deg);
+    opacity: 1;
+  }
+  53% {
+    transform: translateX(200px) translateY(8px) scale(0.55) rotate(75deg);
+    opacity: 0.25;
+  }
+  57% {
+    transform: translateX(205px) translateY(22px) scale(0.1) rotate(90deg);
+    opacity: 0;
+  }
+  /* Emerge from the hole into the new theme */
+  63% {
+    transform: translateX(205px) translateY(12px) scale(0.3) rotate(-35deg);
+    opacity: 0.3;
+  }
+  71% {
+    transform: translateX(220px) translateY(-16px) scale(0.95) rotate(-12deg);
+    opacity: 1;
+  }
+  79% {
+    transform: translateX(240px) translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(370px) translateY(0) scale(1) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+.theme-char-journey {
+  animation: themeCharJourney 1.35s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-char-journey,
+  .theme-arm-front,
+  .theme-arm-back,
+  .theme-leg-front,
+  .theme-leg-back {
+    animation: none !important;
+  }
+}

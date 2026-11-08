@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { ArrowUpRight, Copy, Mail, Github, Linkedin, Award } from 'lucide-react';
+import { ArrowUpRight, Mail, Phone, Github, Linkedin, Award } from 'lucide-react';
 
 interface FooterProps {
-  onCopyEmail: () => void;
-  copied: boolean;
+  onCopyEmail?: () => void;
+  copied?: boolean;
 }
 
 export default function Footer({ onCopyEmail, copied }: FooterProps) {
@@ -36,10 +36,10 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
         
         {/* Playful Floating Chunky Name Badge Lettering Restored from LastPage.png */}
         {/* All letters are UPPERCASE, bold, white with black outline and centered */}
-        <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 my-10 sm:my-16 select-none flex-wrap py-2">
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 md:gap-3.5 my-8 sm:my-16 select-none flex-nowrap py-2">
           
           {/* 1. 'S' - Blue Rounded Square */}
-          <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl bg-[#2563eb] text-white flex items-center justify-center font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform -rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
+          <div className="w-11 h-11 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl md:rounded-3xl bg-[#2563eb] text-white flex items-center justify-center font-black text-2xl sm:text-4xl md:text-5xl lg:text-6xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform -rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
             <span
               style={{
                 WebkitTextStroke: '2px #111827',
@@ -51,7 +51,7 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
           </div>
 
           {/* 2. 'H' - Red Circle */}
-          <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full bg-[#ef4444] text-white flex items-center justify-center font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
+          <div className="w-11 h-11 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full bg-[#ef4444] text-white flex items-center justify-center font-black text-2xl sm:text-4xl md:text-5xl lg:text-6xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
             <span
               style={{
                 WebkitTextStroke: '2px #111827',
@@ -64,7 +64,7 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
 
           {/* 3. 'E' - Pink Hexagon */}
           <div
-            className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 bg-[#ec4899] text-white flex items-center justify-center font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl shadow-2xl transform -rotate-4 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0"
+            className="w-11 h-11 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-[#ec4899] text-white flex items-center justify-center font-black text-2xl sm:text-4xl md:text-5xl lg:text-6xl shadow-2xl transform -rotate-4 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0"
             style={{
               clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
             }}
@@ -80,7 +80,7 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
           </div>
 
           {/* 4. 'H' - Orange Rounded Square */}
-          <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl bg-[#f59e0b] text-white flex items-center justify-center font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
+          <div className="w-11 h-11 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl md:rounded-3xl bg-[#f59e0b] text-white flex items-center justify-center font-black text-2xl sm:text-4xl md:text-5xl lg:text-6xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
             <span
               style={{
                 WebkitTextStroke: '2px #111827',
@@ -92,7 +92,7 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
           </div>
 
           {/* 5. 'Z' - Green Heart Shape */}
-          <div className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 flex items-center justify-center transform -rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
+          <div className="relative w-11 h-11 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 flex items-center justify-center transform -rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
             <svg
               viewBox="0 0 100 100"
               className="absolute inset-0 w-full h-full text-[#10b981] drop-shadow-xl"
@@ -101,7 +101,7 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
               <path d="M50,90 C25,72 5,54 5,32 C5,15 18,4 34,4 C43,4 50,9 50,9 C50,9 57,4 66,4 C82,4 95,15 95,32 C95,54 75,72 50,90 Z" />
             </svg>
             <span
-              className="relative z-10 font-black text-white text-3xl sm:text-5xl md:text-6xl lg:text-7xl pb-1"
+              className="relative z-10 font-black text-white text-2xl sm:text-4xl md:text-5xl lg:text-6xl pb-1"
               style={{
                 WebkitTextStroke: '2px #111827',
                 textShadow: '0 3px 6px rgba(0,0,0,0.5)',
@@ -112,7 +112,7 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
           </div>
 
           {/* 6. 'A' - Purple Circle */}
-          <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full bg-[#8b5cf6] text-white flex items-center justify-center font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform rotate-4 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
+          <div className="w-11 h-11 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full bg-[#8b5cf6] text-white flex items-center justify-center font-black text-2xl sm:text-4xl md:text-5xl lg:text-6xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform rotate-4 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
             <span
               style={{
                 WebkitTextStroke: '2px #111827',
@@ -124,7 +124,7 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
           </div>
 
           {/* 7. 'N' - Cyan Rounded Square */}
-          <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl bg-[#06b6d4] text-white flex items-center justify-center font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform -rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
+          <div className="w-11 h-11 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl md:rounded-3xl bg-[#06b6d4] text-white flex items-center justify-center font-black text-2xl sm:text-4xl md:text-5xl lg:text-6xl shadow-2xl border-2 sm:border-3 border-[#18181b]/30 transform -rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300 shrink-0">
             <span
               style={{
                 WebkitTextStroke: '2px #111827',
@@ -203,14 +203,25 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
                 </a>
               </li>
               <li>
-                <button
-                  onClick={onCopyEmail}
-                  className="hover:text-theme-accent transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=ershehzankhan@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-theme-accent transition-colors flex items-center gap-1.5"
                 >
                   <Mail className="w-3.5 h-3.5" />
-                  <span>Copy Email</span>
-                  <Copy className="w-3 h-3 text-theme-muted" />
-                </button>
+                  <span>Email (Gmail)</span>
+                  <ArrowUpRight className="w-3 h-3 text-theme-muted" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="tel:+918085116703"
+                  className="hover:text-theme-accent transition-colors flex items-center gap-1.5"
+                >
+                  <Phone className="w-3.5 h-3.5 text-theme-accent" />
+                  <span>+91 8085116703</span>
+                </a>
               </li>
             </ul>
           </div>
@@ -224,13 +235,24 @@ export default function Footer({ onCopyEmail, copied }: FooterProps) {
               Open for full-time Software Engineer, Backend, and C++ developer roles. Have a challenging problem or project?
             </p>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-2.5">
               <a
-                href="mailto:ershehzankhan@gmail.com"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-theme-text text-theme-bg font-semibold text-xs tracking-wide hover:bg-theme-accent hover:text-theme-accentContrast transition-colors shadow-md"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=ershehzankhan@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-theme-text text-theme-bg font-semibold text-xs tracking-wide hover:bg-theme-accent hover:text-theme-accentContrast transition-all shadow-md group"
               >
                 <Mail className="w-3.5 h-3.5" />
-                <span>ershehzankhan@gmail.com</span>
+                <span>Email Me</span>
+                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </a>
+
+              <a
+                href="tel:+918085116703"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-theme-border bg-theme-surface hover:border-theme-accent hover:text-theme-accent font-semibold text-xs tracking-wide transition-all shadow-sm"
+              >
+                <Phone className="w-3.5 h-3.5 text-theme-accent" />
+                <span>+91 8085116703</span>
               </a>
             </div>
 

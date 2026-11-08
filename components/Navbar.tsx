@@ -35,7 +35,7 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
             Stack
           </a>
           <a href="#problem-solving" className="hover:text-theme-text transition-colors">
-            DSA Proof
+            Problem Solving
           </a>
           <a href="#contact" className="hover:text-theme-text transition-colors">
             Contact
@@ -48,13 +48,15 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
           <ThemeToggle />
 
           {/* Let's Talk CTA */}
-          <button
-            onClick={onCopyEmail}
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=ershehzankhan@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
             className="glass-pill px-4 sm:px-5 py-2 rounded-full flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-theme-text hover:bg-theme-accent hover:text-theme-accentContrast transition-all duration-200 shadow-sm group cursor-pointer"
           >
             <span>Let's Talk</span>
             <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </button>
+          </a>
 
           {/* Mobile Menu Button */}
           <button
@@ -96,7 +98,7 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
             onClick={() => setMobileMenuOpen(false)}
             className="px-4 py-2.5 rounded-xl hover:bg-theme-hover text-theme-text transition-colors"
           >
-            05 // 1,335+ DSA Proof
+            05 // Problem Solving (1,335+ Solved)
           </a>
           <a
             href="#contact"

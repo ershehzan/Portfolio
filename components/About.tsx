@@ -21,12 +21,12 @@ export default function About() {
           {/* Left Column: Authentic Portrait */}
           <div className="lg:col-span-5 relative group">
             <div className="relative rounded-2xl overflow-hidden border border-theme-border bg-theme-surface shadow-xl">
-              <div className="aspect-[3/4] relative">
+              <div className="aspect-[4/5] relative">
                 <Image
                   src="/assets/shehzan-portrait.jpg"
                   alt="Shehzan Khan — Software Engineer"
                   fill
-                  className="object-cover object-center filter grayscale contrast-[1.03] group-hover:grayscale-0 transition-all duration-700"
+                  className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.01]"
                   priority
                 />
               </div>
