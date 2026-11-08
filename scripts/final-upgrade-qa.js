@@ -107,3 +107,4 @@ const puppeteer = require('puppeteer');
   await browser.close();
   console.log('All QA screenshots captured successfully!');
 })();
+

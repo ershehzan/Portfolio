@@ -161,53 +161,102 @@ body {
   to { transform: rotate(38deg); }
 }
 
-@keyframes themeCharJourney {
+@keyframes journeyLTR {
   0% {
-    transform: translateX(20px) translateY(0) scale(1) rotate(0deg);
+    transform: translateX(25px) translateY(0) scale(1) rotate(0deg);
     opacity: 0;
   }
-  8% {
-    transform: translateX(45px) translateY(0) scale(1) rotate(0deg);
+  10% {
+    transform: translateX(65px) translateY(0) scale(1) rotate(0deg);
     opacity: 1;
   }
-  38% {
-    transform: translateX(140px) translateY(0) scale(1) rotate(6deg);
+  36% {
+    transform: translateX(190px) translateY(0) scale(1) rotate(6deg);
     opacity: 1;
   }
   /* Dive down into the center portal hole */
-  46% {
-    transform: translateX(180px) translateY(-14px) scale(0.95) rotate(42deg);
+  45% {
+    transform: translateX(225px) translateY(-14px) scale(0.95) rotate(42deg);
     opacity: 1;
   }
-  53% {
-    transform: translateX(200px) translateY(8px) scale(0.55) rotate(75deg);
+  52% {
+    transform: translateX(240px) translateY(10px) scale(0.55) rotate(75deg);
     opacity: 0.25;
   }
-  57% {
-    transform: translateX(205px) translateY(22px) scale(0.1) rotate(90deg);
+  56% {
+    transform: translateX(240px) translateY(24px) scale(0.1) rotate(90deg);
     opacity: 0;
   }
   /* Emerge from the hole into the new theme */
-  63% {
-    transform: translateX(205px) translateY(12px) scale(0.3) rotate(-35deg);
-    opacity: 0.3;
+  64% {
+    transform: translateX(240px) translateY(12px) scale(0.4) rotate(-35deg);
+    opacity: 0.35;
   }
-  71% {
-    transform: translateX(220px) translateY(-16px) scale(0.95) rotate(-12deg);
+  72% {
+    transform: translateX(265px) translateY(-16px) scale(0.95) rotate(-12deg);
     opacity: 1;
   }
-  79% {
-    transform: translateX(240px) translateY(0) scale(1) rotate(0deg);
+  80% {
+    transform: translateX(290px) translateY(0) scale(1) rotate(0deg);
     opacity: 1;
   }
   100% {
-    transform: translateX(370px) translateY(0) scale(1) rotate(0deg);
+    transform: translateX(430px) translateY(0) scale(1) rotate(0deg);
     opacity: 0;
   }
 }
 
-.theme-char-journey {
-  animation: themeCharJourney 1.35s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+@keyframes journeyRTL {
+  0% {
+    transform: translateX(430px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    transform: translateX(390px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
+    opacity: 1;
+  }
+  36% {
+    transform: translateX(280px) translateY(0) scaleX(-1) scaleY(1) rotate(6deg);
+    opacity: 1;
+  }
+  /* Dive down into the center portal hole from right */
+  45% {
+    transform: translateX(250px) translateY(-14px) scaleX(-1) scaleY(0.95) rotate(42deg);
+    opacity: 1;
+  }
+  52% {
+    transform: translateX(240px) translateY(10px) scaleX(-1) scaleY(0.55) rotate(75deg);
+    opacity: 0.25;
+  }
+  56% {
+    transform: translateX(240px) translateY(24px) scale(0.1) rotate(-90deg);
+    opacity: 0;
+  }
+  /* Emerge from the hole towards left */
+  64% {
+    transform: translateX(240px) translateY(12px) scaleX(-1) scaleY(0.4) rotate(-35deg);
+    opacity: 0.35;
+  }
+  72% {
+    transform: translateX(215px) translateY(-16px) scaleX(-1) scaleY(0.95) rotate(-12deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(190px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(45px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+.journey-ltr {
+  animation: journeyLTR 1.35s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+}
+
+.journey-rtl {
+  animation: journeyRTL 1.35s cubic-bezier(0.35, 0, 0.25, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -10,6 +10,8 @@ interface ThemeContextType {
   toggleTheme: () => void;
   isDark: boolean;
   isTransitioning: boolean;
+  transitionDirection: 'dark-to-light' | 'light-to-dark';
+  currentPhase: 'entering' | 'swapped';
 }
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -17,6 +19,8 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
   isDark: true,
   isTransitioning: false,
+  transitionDirection: 'dark-to-light',
+  currentPhase: 'entering',
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -109,15 +113,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark', isTransitioning }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        toggleTheme,
+        isDark: theme === 'dark',
+        isTransitioning,
+        transitionDirection,
+        currentPhase,
+      }}
+    >
       {children}
-      {mounted && (
-        <ThemeTransitionPortal
-          isTransitioning={isTransitioning}
-          direction={transitionDirection}
-          currentPhase={currentPhase}
-        />
-      )}
     </ThemeContext.Provider>
   );
 }

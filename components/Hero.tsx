@@ -13,23 +13,25 @@ export default function Hero({ onCopyEmail }: HeroProps) {
       id="home"
       className="relative min-h-[90vh] flex flex-col justify-between pt-24 sm:pt-28 pb-8 sm:pb-12 px-6 md:px-12 lg:px-20 overflow-hidden grid-canvas"
     >
-      {/* Cinematic Background Video with Adaptive Theme Overlays */}
+      {/* Layer 1 & 2: Cinematic Background Video with Restrained Theme-Aware Gradient Overlays */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-25 dark:opacity-35 transition-opacity duration-700"
+          preload="auto"
+          poster="/assets/bg-video-poster.png"
+          className="w-full h-full object-cover opacity-65 dark:opacity-55 transition-opacity duration-700"
         >
           <source src="/videos/BG_Video.mp4" type="video/mp4" />
         </video>
-        {/* Dark Theme Adaptive Overlays */}
-        <div className="hidden dark:block absolute inset-0 bg-gradient-to-r from-[#0d0f12]/95 via-[#0d0f12]/80 to-[#0d0f12]/60" />
-        <div className="hidden dark:block absolute inset-0 bg-gradient-to-t from-[#0d0f12] via-transparent to-[#0d0f12]/40" />
-        {/* Light Theme Adaptive Overlays */}
-        <div className="block dark:hidden absolute inset-0 bg-gradient-to-r from-[#faf8f5]/95 via-[#faf8f5]/85 to-[#faf8f5]/65" />
-        <div className="block dark:hidden absolute inset-0 bg-gradient-to-t from-[#faf8f5] via-transparent to-[#faf8f5]/30" />
+        {/* Layer 2 (Dark Mode): Restrained Dark Gradient — Keeps text legible while footage shines on right */}
+        <div className="hidden dark:block absolute inset-0 bg-gradient-to-r from-[#0B0E0C]/80 via-[#0B0E0C]/40 to-transparent" />
+        <div className="hidden dark:block absolute inset-0 bg-gradient-to-t from-[#0B0E0C] via-transparent to-[#0B0E0C]/25" />
+        {/* Layer 2 (Light Mode): Soft Warm Neutral Gradient — Preserves video details with crisp text contrast */}
+        <div className="block dark:hidden absolute inset-0 bg-gradient-to-r from-[#F5F5EF]/85 via-[#F5F5EF]/45 to-transparent" />
+        <div className="block dark:hidden absolute inset-0 bg-gradient-to-t from-[#F5F5EF] via-transparent to-[#F5F5EF]/20" />
       </div>
 
       {/* Ambient background glows */}

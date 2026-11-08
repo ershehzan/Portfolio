@@ -16,3 +16,4 @@ const puppeteer = require('puppeteer');
   await page.screenshot({ path: 'screenshots/bg-video-frame.png' });
   await browser.close();
 })();
+

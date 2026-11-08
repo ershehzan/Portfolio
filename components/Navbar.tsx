@@ -3,13 +3,16 @@
 import React, { useState } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import ThemeTransitionPortal from './ThemeTransitionPortal';
+import { useTheme } from './ThemeProvider';
 
 interface NavbarProps {
-  onCopyEmail: () => void;
+  onCopyEmail?: () => void;
 }
 
 export default function Navbar({ onCopyEmail }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isTransitioning, transitionDirection, currentPhase } = useTheme();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-3.5 sm:py-4 transition-all duration-300">
@@ -44,8 +47,17 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
 
         {/* Right Group: Theme Toggle & CTA & Mobile Toggle */}
         <div className="flex items-center gap-2">
-          {/* Animated Sun/Moon Theme Toggle */}
-          <ThemeToggle />
+          {/* Animated Sun/Moon Theme Toggle with Floating Portal Popover */}
+          <div className="relative">
+            <ThemeToggle />
+
+            {/* Small Floating Portal Panel Anchored Directly to Toggle */}
+            <ThemeTransitionPortal
+              isTransitioning={isTransitioning}
+              direction={transitionDirection}
+              currentPhase={currentPhase}
+            />
+          </div>
 
           {/* Let's Talk CTA */}
           <a
