@@ -27,3 +27,4 @@ const puppeteer = require('puppeteer');
   await browser.close();
   console.log('Skill detail screenshot updated!');
 })();
+

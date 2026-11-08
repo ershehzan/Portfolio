@@ -109,15 +109,16 @@ export default function ThemeTransitionPortal({
             strokeLinejoin="round"
             className="stroke-[#C5F36A]"
           >
-            {/* Head */}
-            <circle
-              cx="16"
-              cy="8"
-              r="4.5"
-              className="fill-[#C5F36A]"
-            />
-            {/* Torso */}
-            <line x1="16" y1="13" x2="16" y2="28" />
+            {/* Head and Torso with animated body bobbing */}
+            <g className="theme-body-bob">
+              <circle
+                cx="16"
+                cy="8"
+                r="4.5"
+                className="fill-[#C5F36A]"
+              />
+              <line x1="16" y1="13" x2="16" y2="28" />
+            </g>
             {/* Arms with animated swing */}
             <path className="theme-arm-back" d="M16 18 L9 24" />
             <path className="theme-arm-front" d="M16 18 L23 24" />

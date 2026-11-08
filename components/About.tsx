@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { 
   Award, 
   Cpu, 
   Layers, 
-  CheckCircle2, 
   Sparkles,
-  ArrowUpRight,
   Code2
 } from 'lucide-react';
 
@@ -18,18 +16,18 @@ interface SkillItem {
   category: 'Programming Languages' | 'Frontend Development' | 'Backend Development' | 'CS Fundamentals' | 'Developer Tools';
   description: string;
   colorClass: string;
-  rotationClass: string;
+  rotDeg: number;
 }
 
-const ROLES = [
-  'Software Engineer',
-  'Full-Stack Engineer',
-  'C++ Developer',
-  'Backend Engineer',
-  'Problem Solver',
+const ROLE_ITEMS = [
+  { role: 'Software Engineer', rot: '-4deg', delay: 0 },
+  { role: 'Full-Stack Engineer', rot: '3deg', delay: 75 },
+  { role: 'C++ Developer', rot: '-5deg', delay: 150 },
+  { role: 'Backend Engineer', rot: '4deg', delay: 225 },
+  { role: 'Problem Solver', rot: '-2deg', delay: 300 },
 ] as const;
 
-type Role = typeof ROLES[number];
+type Role = typeof ROLE_ITEMS[number]['role'];
 
 const ROLE_FOCUS: Record<Role, string> = {
   'Software Engineer': 'Designing reliable architectures, end-to-end features, and resilient production code.',
@@ -47,7 +45,7 @@ const SKILLS: SkillItem[] = [
     category: 'Programming Languages',
     description: 'Used for systems programming, algorithmic problem-solving and low-level networking (Winsock, RFC 6455).',
     colorClass: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 hover:border-blue-500/50',
-    rotationClass: '-rotate-1',
+    rotDeg: -4,
   },
   {
     id: 'python',
@@ -55,7 +53,7 @@ const SKILLS: SkillItem[] = [
     category: 'Programming Languages',
     description: 'Used for high-performance scripting, multi-objective genetic algorithms, and AI agent orchestration.',
     colorClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 hover:border-amber-500/50',
-    rotationClass: 'rotate-1',
+    rotDeg: 5,
   },
   {
     id: 'javascript',
@@ -63,7 +61,7 @@ const SKILLS: SkillItem[] = [
     category: 'Programming Languages',
     description: 'Used for interactive frontend interfaces, client-side state management, and modern web applications.',
     colorClass: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20 hover:border-yellow-500/50',
-    rotationClass: 'rotate-0',
+    rotDeg: -2,
   },
 
   // Frontend Development
@@ -73,7 +71,7 @@ const SKILLS: SkillItem[] = [
     category: 'Frontend Development',
     description: 'Semantic document structuring, accessibility (a11y), and web standard compliance.',
     colorClass: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20 hover:border-orange-500/50',
-    rotationClass: 'rotate-1',
+    rotDeg: 6,
   },
   {
     id: 'css',
@@ -81,7 +79,7 @@ const SKILLS: SkillItem[] = [
     category: 'Frontend Development',
     description: 'Responsive styling, custom design systems, modern layouts (Flexbox, Grid), and fluid animations.',
     colorClass: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20 hover:border-cyan-500/50',
-    rotationClass: '-rotate-1',
+    rotDeg: -5,
   },
   {
     id: 'nextjs',
@@ -89,7 +87,7 @@ const SKILLS: SkillItem[] = [
     category: 'Frontend Development',
     description: 'Full-stack React framework with server-side rendering, static generation, API routes, and Turbopack optimization.',
     colorClass: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20 hover:border-purple-500/50',
-    rotationClass: 'rotate-0',
+    rotDeg: 3,
   },
 
   // Backend Development
@@ -99,7 +97,7 @@ const SKILLS: SkillItem[] = [
     category: 'Backend Development',
     description: 'Used for building high-throughput asynchronous backend APIs and model verification services.',
     colorClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:border-emerald-500/50',
-    rotationClass: '-rotate-1',
+    rotDeg: -6,
   },
   {
     id: 'flask',
@@ -107,7 +105,7 @@ const SKILLS: SkillItem[] = [
     category: 'Backend Development',
     description: 'Lightweight Python micro-framework for modular RESTful services and rapid API prototyping.',
     colorClass: 'bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20 hover:border-zinc-500/50',
-    rotationClass: 'rotate-1',
+    rotDeg: 4,
   },
   {
     id: 'sql',
@@ -115,7 +113,7 @@ const SKILLS: SkillItem[] = [
     category: 'Backend Development',
     description: 'Database querying, schema design, relational data management, and transactional ACID integrity.',
     colorClass: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 hover:border-sky-500/50',
-    rotationClass: 'rotate-0',
+    rotDeg: -3,
   },
 
   // Computer Science Fundamentals
@@ -125,7 +123,7 @@ const SKILLS: SkillItem[] = [
     category: 'CS Fundamentals',
     description: '1,335+ verified problems solved across LeetCode, GFG & HackerRank; graph theory, DP, and complexity optimization.',
     colorClass: 'bg-emerald-500/15 text-emerald-700 dark:text-[#C5F36A] border-emerald-500/30 hover:border-emerald-500/60 font-semibold',
-    rotationClass: '-rotate-1',
+    rotDeg: 7,
   },
   {
     id: 'oop',
@@ -133,7 +131,7 @@ const SKILLS: SkillItem[] = [
     category: 'CS Fundamentals',
     description: 'Clean software architecture, encapsulation, polymorphism, inheritance, and SOLID design principles in C++ and Python.',
     colorClass: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 hover:border-indigo-500/50',
-    rotationClass: 'rotate-1',
+    rotDeg: -5,
   },
   {
     id: 'os',
@@ -141,7 +139,7 @@ const SKILLS: SkillItem[] = [
     category: 'CS Fundamentals',
     description: 'Process scheduling, virtual memory management, multithreading synchronization, system calls, and POSIX concurrency.',
     colorClass: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:border-rose-500/50',
-    rotationClass: 'rotate-0',
+    rotDeg: 3,
   },
   {
     id: 'cn',
@@ -149,7 +147,7 @@ const SKILLS: SkillItem[] = [
     category: 'CS Fundamentals',
     description: 'Direct socket programming, TCP/IP handshake, HTTP/HTTPS, and RFC 6455 frame masking implementation.',
     colorClass: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20 hover:border-teal-500/50',
-    rotationClass: '-rotate-1',
+    rotDeg: -6,
   },
 
   // Developer Tools
@@ -159,7 +157,7 @@ const SKILLS: SkillItem[] = [
     category: 'Developer Tools',
     description: 'Distributed version control, atomic commits, branching strategies, rebase workflows, and repository hygiene.',
     colorClass: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 hover:border-red-500/50',
-    rotationClass: 'rotate-1',
+    rotDeg: 6,
   },
   {
     id: 'github',
@@ -167,7 +165,7 @@ const SKILLS: SkillItem[] = [
     category: 'Developer Tools',
     description: 'Open-source collaboration, pull requests, issue triage, and automated GitHub Actions workflows.',
     colorClass: 'bg-zinc-600/10 text-zinc-700 dark:text-zinc-300 border-zinc-600/20 hover:border-zinc-600/50',
-    rotationClass: '-rotate-1',
+    rotDeg: -4,
   },
   {
     id: 'vscode',
@@ -175,16 +173,39 @@ const SKILLS: SkillItem[] = [
     category: 'Developer Tools',
     description: 'Primary development environment configured for C++, Python, TypeScript, and remote container debugging.',
     colorClass: 'bg-blue-600/10 text-blue-700 dark:text-blue-300 border-blue-600/20 hover:border-blue-600/50',
-    rotationClass: 'rotate-0',
+    rotDeg: 4,
   },
 ];
 
 export default function About() {
   const [activeRole, setActiveRole] = useState<Role>('Software Engineer');
   const [selectedSkill, setSelectedSkill] = useState<SkillItem>(SKILLS[0]);
+  const [hasEntered, setHasEntered] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setHasEntered(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section id="about" className="py-24 px-6 md:px-12 lg:px-20 border-t border-theme-border bg-theme-elevated transition-colors duration-300">
+    <section 
+      id="about" 
+      ref={sectionRef}
+      className="py-24 px-6 md:px-12 lg:px-20 border-t border-theme-border bg-theme-elevated transition-colors duration-300"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Section Number Header */}
         <div className="flex items-center gap-3 mb-12 sm:mb-14">
@@ -273,21 +294,31 @@ export default function About() {
 
               {/* Animated Interactive Professional Role Selector */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                {ROLES.map((role) => {
-                  const isActive = activeRole === role;
+                {ROLE_ITEMS.map((item) => {
+                  const isActive = activeRole === item.role;
                   return (
                     <button
-                      key={role}
+                      key={item.role}
                       type="button"
-                      onClick={() => setActiveRole(role)}
+                      onClick={() => setActiveRole(item.role)}
+                      style={
+                        hasEntered
+                          ? {
+                              animationDelay: `${item.delay}ms`,
+                              ['--role-rot' as any]: item.rot,
+                            }
+                          : { opacity: 0 }
+                      }
                       className={`text-xs sm:text-sm font-semibold px-3.5 py-1.5 rounded-full border transition-all duration-200 cursor-pointer ${
+                        hasEntered ? 'role-chip-drop' : 'opacity-0'
+                      } ${
                         isActive
                           ? 'bg-theme-accent text-theme-accentContrast border-theme-accent shadow-md scale-105'
                           : 'bg-theme-surface border-theme-border text-theme-muted hover:text-theme-text hover:border-theme-borderStrong'
                       }`}
                       aria-pressed={isActive}
                     >
-                      {role}
+                      {item.role}
                     </button>
                   );
                 })}
@@ -319,14 +350,25 @@ export default function About() {
 
               {/* Colorful Interactive Skill Chips Cloud */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 select-none">
-                {SKILLS.map((skill) => {
+                {SKILLS.map((skill, index) => {
                   const isSelected = selectedSkill.id === skill.id;
                   return (
                     <button
                       key={skill.id}
                       type="button"
                       onClick={() => setSelectedSkill(skill)}
-                      className={`text-xs sm:text-sm px-3.5 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer shadow-sm ${skill.colorClass} ${skill.rotationClass} ${
+                      style={
+                        hasEntered
+                          ? {
+                              animationDelay: `${index * 45}ms`,
+                              ['--chip-rot' as any]: `${skill.rotDeg}deg`,
+                              transform: isSelected ? 'scale(1.08)' : `rotate(${skill.rotDeg}deg)`,
+                            }
+                          : { opacity: 0 }
+                      }
+                      className={`text-xs sm:text-sm px-3.5 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer shadow-sm ${skill.colorClass} ${
+                        hasEntered ? 'skill-chip-drop' : 'opacity-0'
+                      } ${
                         isSelected
                           ? 'ring-2 ring-theme-accent border-theme-accent scale-105 shadow-md font-bold'
                           : 'hover:scale-105 active:scale-95'
