@@ -61,3 +61,4 @@ const puppeteer = require('puppeteer');
   await browser.close();
   console.log('Current diagnostics captured!');
 })();
+

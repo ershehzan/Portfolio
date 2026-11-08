@@ -479,3 +479,4 @@ const puppeteer = require('puppeteer');
   await browser.close();
   console.log('Canvas prototype rendered successfully!');
 })();
+

@@ -104,6 +104,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme(nextTheme);
       localStorage.setItem('theme', nextTheme);
       setCurrentPhase('swapped');
+
+      // Clear any query parameter so localStorage persists cleanly across reloads
+      if (typeof window !== 'undefined' && window.location.search.includes('theme=')) {
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete('theme');
+        window.history.replaceState({}, '', cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ''));
+      }
     }, 680);
 
     // Finish transition after character arrives and capsule smoothly closes

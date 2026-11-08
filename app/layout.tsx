@@ -53,7 +53,7 @@ export default function RootLayout({
                   var params = new URLSearchParams(window.location.search);
                   var queryTheme = params.get('theme');
                   var stored = localStorage.getItem('theme');
-                  var isDark = queryTheme ? queryTheme === 'dark' : (stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  var isDark = stored ? (stored === 'dark') : (queryTheme ? queryTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
                   if (isDark) {
                     document.documentElement.classList.add('dark');
                   } else {

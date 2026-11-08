@@ -111,3 +111,4 @@ const puppeteer = require('puppeteer');
   await browser.close();
   console.log('All portal transition frames verified and saved!');
 })();
+
