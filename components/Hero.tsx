@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ArrowRight, ArrowUpRight, Terminal, ShieldCheck, Cpu } from 'lucide-react';
+import SplitText from './react-bits/SplitText';
 
 interface HeroProps {
   onCopyEmail?: () => void;
@@ -40,14 +41,11 @@ export default function Hero({ onCopyEmail }: HeroProps) {
 
       {/* Main Content Area */}
       <div className="relative z-10 my-auto pt-2 pb-6 sm:py-6 max-w-5xl">
-        {/* Massive Display Headline */}
-        <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[7.25rem] font-black tracking-tighter leading-[0.9] text-theme-text select-none">
-          ENGINEER.
-          <br />
-          BUILD.
-          <br />
-          SOLVE.
-        </h1>
+        {/* Massive Display Headline Animated via SplitText */}
+        <SplitText
+          lines={['ENGINEER.', 'BUILD.', 'SOLVE.']}
+          className="text-5xl sm:text-7xl md:text-8xl lg:text-[7.25rem] font-black tracking-tighter leading-[0.9] text-theme-text select-none"
+        />
 
         {/* Subtitle / Positioning Statement */}
         <div className="mt-7 md:mt-9 max-w-2xl">
