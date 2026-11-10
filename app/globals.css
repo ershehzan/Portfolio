@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Property Registrations for Smooth Color Interpolation */
+/* CSS Property Registrations for Butter-Smooth CSS Color Interpolation */
 @property --bg {
   syntax: '<color>';
   inherits: true;
@@ -63,29 +63,49 @@
   inherits: true;
   initial-value: #0B0E0C;
 }
+@property --accent-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(197, 243, 106, 0.12);
+}
+@property --glass-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(20, 26, 22, 0.85);
+}
+@property --glass-border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(244, 245, 239, 0.12);
+}
+@property --grid-line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(244, 245, 239, 0.04);
+}
 
 :root {
-  /* Light Theme Tokens */
+  /* Light Theme Tokens — High-Contrast Warm Editorial */
   --bg: #F5F5EF;
   --bg-elevated: #FFFFFF;
-  --surface: #EAECE4;
+  --surface: #E8ECE2;
   --surface-card: #FFFFFF;
-  --surface-hover: #E2E6DC;
-  --border: #DDE1D7;
-  --border-strong: #C8CEC0;
-  --text: #151A16;
-  --text-muted: #5E695D;
-  --text-subtle: #828E81;
+  --surface-hover: #DFE4D8;
+  --border: #D8DED1;
+  --border-strong: #C0C8B7;
+  --text: #131714;
+  --text-muted: #4A5649;
+  --text-subtle: #6D7B6C;
   --accent: #58801C;
   --accent-contrast: #FFFFFF;
   --accent-soft: rgba(88, 128, 28, 0.12);
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(21, 26, 22, 0.12);
-  --grid-line: rgba(21, 26, 22, 0.04);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(19, 23, 20, 0.12);
+  --grid-line: rgba(19, 23, 20, 0.045);
 }
 
 .dark {
-  /* Dark Theme Tokens */
+  /* Dark Theme Tokens — Deep Obsidian & Neon Matrix Accent */
   --bg: #0B0E0C;
   --bg-elevated: #141A16;
   --surface: #1B221E;
@@ -99,7 +119,7 @@
   --accent: #C5F36A;
   --accent-contrast: #0B0E0C;
   --accent-soft: rgba(197, 243, 106, 0.12);
-  --glass-bg: rgba(20, 26, 22, 0.75);
+  --glass-bg: rgba(20, 26, 22, 0.85);
   --glass-border: rgba(244, 245, 239, 0.12);
   --grid-line: rgba(244, 245, 239, 0.04);
 }
@@ -116,10 +136,10 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-  transition: background-color 350ms cubic-bezier(0.4, 0, 0.2, 1), color 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 450ms cubic-bezier(0.16, 1, 0.3, 1), color 450ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Global Coordinated Theme Transition for Surface & Text Elements */
+/* Global Coordinated Theme Transition for Surface & Structural Elements */
 header,
 nav,
 section,
@@ -131,8 +151,8 @@ main,
 button:not(.no-theme-trans),
 a:not(.no-theme-trans) {
   transition-property: background-color, border-color, color, fill, stroke, box-shadow;
-  transition-duration: 350ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 450ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Custom Scrollbar */
@@ -171,7 +191,7 @@ a:not(.no-theme-trans) {
   border-color: var(--border-strong);
 }
 
-/* Wood shelf motif from Work.png */
+/* Wood shelf motif from Work */
 .wood-shelf {
   position: relative;
   height: 12px;
@@ -204,59 +224,33 @@ a:not(.no-theme-trans) {
     linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
 }
 
-/* About Section Roles & Skills Drop Animations */
-@keyframes roleChipDrop {
-  0% {
-    opacity: 0;
-    transform: translateY(-45px) rotate(var(--role-rot, -4deg)) scale(0.9);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(4px) rotate(calc(var(--role-rot, -4deg) * -0.4)) scale(1.02);
-  }
-  80% {
-    transform: translateY(-2px) rotate(calc(var(--role-rot, -4deg) * 0.15)) scale(0.99);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) rotate(0deg) scale(1);
-  }
+/* Fluid Typographic Scale Helpers */
+.text-editorial-hero {
+  font-size: clamp(2.75rem, 6.75vw, 7.25rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
 }
 
-@keyframes skillChipDrop {
-  0% {
-    opacity: 0;
-    transform: translateY(-55px) rotate(var(--chip-rot, 0deg)) scale(0.85);
-  }
-  65% {
-    opacity: 1;
-    transform: translateY(5px) rotate(calc(var(--chip-rot, 0deg) * 1.25)) scale(1.03);
-  }
-  85% {
-    transform: translateY(-2px) rotate(var(--chip-rot, 0deg)) scale(0.99);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) rotate(var(--chip-rot, 0deg)) scale(1);
-  }
+.text-editorial-title {
+  font-size: clamp(1.85rem, 4vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
 }
 
-.role-chip-drop {
-  animation: roleChipDrop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  opacity: 0;
+.text-editorial-subtitle {
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  line-height: 1.55;
+  letter-spacing: -0.01em;
 }
 
-.skill-chip-drop {
-  animation: skillChipDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  opacity: 0;
-}
-
+/* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
-  .theme-char-journey,
-  .theme-arm-front,
-  .theme-arm-back,
-  .theme-leg-front,
-  .theme-leg-back {
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

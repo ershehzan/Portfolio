@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import ThemeToggle from './ThemeToggle';
 import ThemeTransitionPortal from './ThemeTransitionPortal';
 import { useTheme } from './ThemeProvider';
@@ -10,9 +11,40 @@ interface NavbarProps {
   onCopyEmail?: () => void;
 }
 
+const NAV_ITEMS = [
+  { id: 'about', label: 'About', href: '#about', mobilePrefix: '02 // About & Identity' },
+  { id: 'work', label: 'Work', href: '#work', mobilePrefix: '03 // Selected Work' },
+  { id: 'stack', label: 'Stack', href: '#stack', mobilePrefix: '04 // Core Systems & Tools' },
+  { id: 'problem-solving', label: 'Problem Solving', href: '#problem-solving', mobilePrefix: '05 // Problem Solving' },
+  { id: 'contact', label: 'Contact', href: '#contact', mobilePrefix: '06 // Get in Touch' },
+];
+
 export default function Navbar({ onCopyEmail }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('about');
   const { isTransitioning, transitionDirection, currentPhase } = useTheme();
+
+  // Active section spy with hysteresis
+  useEffect(() => {
+    const sectionIds = ['home', 'about', 'work', 'stack', 'problem-solving', 'contact'];
+    const handleScroll = () => {
+      const scrollY = window.scrollY + 160;
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sectionIds[i]);
+        if (el) {
+          const top = el.offsetTop;
+          if (scrollY >= top) {
+            setActiveSection(sectionIds[i] === 'home' ? 'about' : sectionIds[i]);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-3.5 sm:py-4 transition-all duration-300">
@@ -26,28 +58,34 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
           <span>Shehzan K.</span>
         </a>
 
-        {/* Center Pill: Desktop Navigation Links */}
-        <nav className="hidden md:flex glass-pill px-6 py-2 rounded-full items-center gap-6 text-xs sm:text-sm text-theme-muted font-medium shadow-sm">
-          <a href="#work" className="hover:text-theme-text transition-colors">
-            Work
-          </a>
-          <a href="#about" className="hover:text-theme-text transition-colors">
-            About
-          </a>
-          <a href="#stack" className="hover:text-theme-text transition-colors">
-            Stack
-          </a>
-          <a href="#problem-solving" className="hover:text-theme-text transition-colors">
-            Problem Solving
-          </a>
-          <a href="#contact" className="hover:text-theme-text transition-colors">
-            Contact
-          </a>
+        {/* Center Pill: Desktop Navigation Links with Smooth Active Sliding Pill */}
+        <nav className="hidden md:flex glass-pill p-1 rounded-full items-center gap-1 text-xs sm:text-sm text-theme-muted font-medium shadow-sm relative">
+          {NAV_ITEMS.map((item) => {
+            const isActive = activeSection === item.id;
+            return (
+              <a
+                key={item.id}
+                href={item.href}
+                className={`relative px-4 py-1.5 rounded-full transition-colors duration-200 z-10 ${
+                  isActive ? 'text-theme-text font-semibold' : 'hover:text-theme-text text-theme-muted'
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="navbarActiveIndicator"
+                    className="absolute inset-0 rounded-full bg-theme-surface/90 border border-theme-border shadow-sm -z-10"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span>{item.label}</span>
+              </a>
+            );
+          })}
         </nav>
 
         {/* Right Group: Theme Toggle & CTA & Mobile Toggle */}
         <div className="flex items-center gap-2">
-          {/* Animated Sun/Moon Theme Toggle with Floating Portal Popover */}
+          {/* Animated Sun/Moon Theme Toggle with Floating Portal Capsule */}
           <div className="relative">
             <ThemeToggle />
 
@@ -75,52 +113,40 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden glass-pill p-2 rounded-full text-theme-text hover:text-theme-accent transition-colors cursor-pointer"
             aria-label="Toggle mobile menu"
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Dropdown Panel */}
-      {mobileMenuOpen && (
-        <div className="md:hidden mt-3 max-w-sm mx-auto glass-panel rounded-2xl p-4 shadow-xl flex flex-col gap-2 font-medium text-xs sm:text-sm animate-in fade-in slide-in-from-top-2 duration-200">
-          <a
-            href="#work"
-            onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2.5 rounded-xl hover:bg-theme-hover text-theme-text transition-colors"
+      {/* Mobile Dropdown Panel with AnimatePresence */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="md:hidden mt-3 max-w-sm mx-auto glass-panel rounded-2xl p-3 shadow-2xl flex flex-col gap-1.5 font-medium text-xs sm:text-sm border border-theme-border"
           >
-            03 // Selected Work
-          </a>
-          <a
-            href="#about"
-            onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2.5 rounded-xl hover:bg-theme-hover text-theme-text transition-colors"
-          >
-            02 // About & Identity
-          </a>
-          <a
-            href="#stack"
-            onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2.5 rounded-xl hover:bg-theme-hover text-theme-text transition-colors"
-          >
-            04 // Core Systems & Tools
-          </a>
-          <a
-            href="#problem-solving"
-            onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2.5 rounded-xl hover:bg-theme-hover text-theme-text transition-colors"
-          >
-            05 // Problem Solving (1,335+ Solved)
-          </a>
-          <a
-            href="#contact"
-            onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2.5 rounded-xl hover:bg-theme-hover text-theme-text transition-colors"
-          >
-            06 // Get in Touch
-          </a>
-        </div>
-      )}
+            {NAV_ITEMS.map((item) => (
+              <a
+                key={item.id}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-2.5 rounded-xl transition-colors ${
+                  activeSection === item.id
+                    ? 'bg-theme-surface text-theme-accent font-semibold border border-theme-border'
+                    : 'hover:bg-theme-hover text-theme-text'
+                }`}
+              >
+                {item.mobilePrefix}
+              </a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

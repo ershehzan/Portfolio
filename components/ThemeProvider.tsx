@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import ThemeTransitionPortal from './ThemeTransitionPortal';
 
 type Theme = 'light' | 'dark';
 
@@ -72,12 +71,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleTheme = () => {
-    if (isTransitioning) return; // Prevent repeated clicks while animating
+    if (isTransitioning) return; // Prevent spam clicks while animating
 
     const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
     const direction = theme === 'dark' ? 'dark-to-light' : 'light-to-dark';
 
-    // Respect prefers-reduced-motion
+    // Respect prefers-reduced-motion: instant swap
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setTheme(nextTheme);
       localStorage.setItem('theme', nextTheme);
@@ -89,12 +88,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Begin interactive portal animation
+    // Begin cinematic portal transition
     setTransitionDirection(direction);
     setCurrentPhase('entering');
     setIsTransitioning(true);
 
-    // Swap theme at midpoint when character dives into the portal hole
+    // Swap document theme precisely at 700ms when character is submerged in portal void
     setTimeout(() => {
       if (nextTheme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -111,9 +110,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         cleanUrl.searchParams.delete('theme');
         window.history.replaceState({}, '', cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ''));
       }
-    }, 680);
+    }, 700);
 
-    // Finish transition after character arrives and capsule smoothly closes
+    // Complete transition after character arrives and capsule smoothly closes
     setTimeout(() => {
       setIsTransitioning(false);
     }, 1350);
@@ -138,4 +137,3 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   return useContext(ThemeContext);
 }
-
