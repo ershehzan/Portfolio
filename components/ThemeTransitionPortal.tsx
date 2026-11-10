@@ -34,7 +34,7 @@ export default function ThemeTransitionPortal({
     // Begin capsule smooth close animation slightly before unmount
     const exitTimer = setTimeout(() => {
       setIsClosing(true);
-    }, 1200);
+    }, 1150);
 
     return () => clearTimeout(exitTimer);
   }, [isTransitioning]);
@@ -55,20 +55,21 @@ export default function ThemeTransitionPortal({
     // Retina / High-DPI crisp rendering
     const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
     const rect = canvas.getBoundingClientRect();
-    const width = rect.width || 440;
-    const height = rect.height || 130;
+    const width = rect.width || 290;
+    const height = rect.height || 86;
 
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
-    const groundY = height * 0.70; // ground track at y = 91px
+    // Compact Proportions
+    const groundY = height * 0.70; // ground track at y = 60px
     const portalX = width / 2;
     const portalY = groundY;
-    const rx = 44; // portal horizontal radius
-    const ry = 12; // portal vertical radius
-    const sunX = Math.max(52, width * 0.135);
-    const moonX = Math.min(width - 52, width * 0.865);
+    const rx = 26; // portal horizontal radius
+    const ry = 7.5; // portal vertical radius
+    const sunX = Math.max(34, width * 0.13);
+    const moonX = Math.min(width - 34, width * 0.87);
 
     const isLTR = direction === 'light-to-dark';
     const facingSign = isLTR ? 1 : -1;
@@ -82,12 +83,12 @@ export default function ThemeTransitionPortal({
     function spawnParticles(x: number, y: number, count: number, upward = false, color = LIME) {
       for (let i = 0; i < count; i++) {
         particles.push({
-          x: x + (Math.random() - 0.5) * 22,
-          y: y + (Math.random() - 0.5) * 6,
-          vx: (Math.random() - 0.5) * 2.4,
-          vy: upward ? -(Math.random() * 2.5 + 1.2) : Math.random() * 2.2 - 1,
+          x: x + (Math.random() - 0.5) * 14,
+          y: y + (Math.random() - 0.5) * 4,
+          vx: (Math.random() - 0.5) * 1.8,
+          vy: upward ? -(Math.random() * 1.8 + 0.8) : Math.random() * 1.6 - 0.8,
           alpha: 1,
-          size: Math.random() * 2.2 + 1.2,
+          size: Math.random() * 1.6 + 0.8,
           color,
         });
       }
@@ -98,7 +99,7 @@ export default function ThemeTransitionPortal({
         const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.alpha -= dt * 2.2;
+        p.alpha -= dt * 2.4;
         if (p.alpha <= 0) {
           particles.splice(i, 1);
         }
@@ -110,7 +111,7 @@ export default function ThemeTransitionPortal({
         ctx!.fillStyle = p.color;
         ctx!.globalAlpha = Math.max(0, p.alpha);
         ctx!.shadowColor = p.color;
-        ctx!.shadowBlur = 8;
+        ctx!.shadowBlur = 6;
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx!.fill();
@@ -119,34 +120,34 @@ export default function ThemeTransitionPortal({
       }
     }
 
-    // 1. Draw Starfield & Micro Grid
+    // 1. Draw Subtle Micro-Track & Nodes
     function drawBackgroundAesthetics(t: number) {
       // Subtle starry constellation dots
-      ctx!.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx!.fillStyle = 'rgba(255, 255, 255, 0.09)';
       const stars = [
-        { x: 30, y: 25 }, { x: 95, y: 38 }, { x: 170, y: 22 },
-        { x: 270, y: 30 }, { x: 350, y: 18 }, { x: 410, y: 32 },
-        { x: 60, y: 65 }, { x: 380, y: 62 }, { x: 220, y: 28 }
+        { x: 22, y: 18 }, { x: 70, y: 24 }, { x: 120, y: 15 },
+        { x: 175, y: 20 }, { x: 225, y: 14 }, { x: 270, y: 22 },
+        { x: 145, y: 18 }, { x: 45, y: 42 }, { x: 245, y: 40 }
       ];
       for (const star of stars) {
         ctx!.beginPath();
-        ctx!.arc(star.x, star.y, 1, 0, Math.PI * 2);
+        ctx!.arc(star.x, star.y, 0.85, 0, Math.PI * 2);
         ctx!.fill();
       }
 
       // Ground Track
       ctx!.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx!.lineWidth = 1.5;
+      ctx!.lineWidth = 1.2;
       ctx!.beginPath();
-      ctx!.moveTo(sunX - 18, groundY);
-      ctx!.lineTo(moonX + 18, groundY);
+      ctx!.moveTo(sunX - 12, groundY);
+      ctx!.lineTo(moonX + 12, groundY);
       ctx!.stroke();
 
       // Track connection glow
       const trackGrad = ctx!.createLinearGradient(sunX, groundY, moonX, groundY);
-      trackGrad.addColorStop(0, isLTR ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.15)');
-      trackGrad.addColorStop(0.5, 'rgba(197, 243, 106, 0.25)');
-      trackGrad.addColorStop(1, !isLTR ? 'rgba(197, 243, 106, 0.35)' : 'rgba(197, 243, 106, 0.15)');
+      trackGrad.addColorStop(0, isLTR ? 'rgba(245, 158, 11, 0.30)' : 'rgba(245, 158, 11, 0.12)');
+      trackGrad.addColorStop(0.5, 'rgba(197, 243, 106, 0.20)');
+      trackGrad.addColorStop(1, !isLTR ? 'rgba(197, 243, 106, 0.30)' : 'rgba(197, 243, 106, 0.12)');
       ctx!.strokeStyle = trackGrad;
       ctx!.lineWidth = 1;
       ctx!.beginPath();
@@ -155,38 +156,37 @@ export default function ThemeTransitionPortal({
       ctx!.stroke();
 
       // Sun Node (left)
-      const sunActive = isLTR ? t < 680 : t >= 1100;
-      drawSunNode(sunX, groundY - 16, sunActive, t);
+      const sunActive = isLTR ? t < 650 : t >= 1050;
+      drawSunNode(sunX, groundY - 11, sunActive, t);
 
       // Moon Node (right)
-      const moonActive = isLTR ? t >= 1100 : t < 680;
-      drawMoonNode(moonX, groundY - 16, moonActive, t);
+      const moonActive = isLTR ? t >= 1050 : t < 650;
+      drawMoonNode(moonX, groundY - 11, moonActive, t);
     }
 
     function drawSunNode(x: number, y: number, active: boolean, t: number) {
-      // Aura
       ctx!.beginPath();
-      ctx!.arc(x, y, 17, 0, Math.PI * 2);
-      ctx!.fillStyle = active ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255, 255, 255, 0.03)';
+      ctx!.arc(x, y, 11, 0, Math.PI * 2);
+      ctx!.fillStyle = active ? 'rgba(245, 158, 11, 0.20)' : 'rgba(255, 255, 255, 0.03)';
       ctx!.fill();
-      ctx!.strokeStyle = active ? 'rgba(245, 158, 11, 0.65)' : 'rgba(255, 255, 255, 0.10)';
-      ctx!.lineWidth = 1.4;
+      ctx!.strokeStyle = active ? 'rgba(245, 158, 11, 0.70)' : 'rgba(255, 255, 255, 0.10)';
+      ctx!.lineWidth = 1.2;
       ctx!.stroke();
 
       // Sun Core
       ctx!.strokeStyle = active ? AMBER : '#71717a';
       ctx!.fillStyle = active ? AMBER : 'transparent';
-      ctx!.lineWidth = 1.8;
+      ctx!.lineWidth = 1.4;
       ctx!.shadowColor = active ? AMBER_GLOW : 'transparent';
-      ctx!.shadowBlur = active ? 12 : 0;
+      ctx!.shadowBlur = active ? 8 : 0;
 
       ctx!.beginPath();
-      ctx!.arc(x, y, 5.5, 0, Math.PI * 2);
+      ctx!.arc(x, y, 3.8, 0, Math.PI * 2);
       ctx!.stroke();
 
       // Rotating Sun Rays
-      const rayLen = 3.8;
-      const rayOffset = 8.5;
+      const rayLen = 2.4;
+      const rayOffset = 5.8;
       const rayRotation = (t * 0.001) % (Math.PI * 2);
       for (let i = 0; i < 8; i++) {
         const angle = (i * Math.PI) / 4 + (active ? rayRotation : 0);
@@ -203,46 +203,44 @@ export default function ThemeTransitionPortal({
     }
 
     function drawMoonNode(x: number, y: number, active: boolean, t: number) {
-      // Aura
       ctx!.beginPath();
-      ctx!.arc(x, y, 17, 0, Math.PI * 2);
-      ctx!.fillStyle = active ? 'rgba(197, 243, 106, 0.16)' : 'rgba(255, 255, 255, 0.03)';
+      ctx!.arc(x, y, 11, 0, Math.PI * 2);
+      ctx!.fillStyle = active ? 'rgba(197, 243, 106, 0.18)' : 'rgba(255, 255, 255, 0.03)';
       ctx!.fill();
-      ctx!.strokeStyle = active ? 'rgba(197, 243, 106, 0.65)' : 'rgba(255, 255, 255, 0.10)';
-      ctx!.lineWidth = 1.4;
+      ctx!.strokeStyle = active ? 'rgba(197, 243, 106, 0.70)' : 'rgba(255, 255, 255, 0.10)';
+      ctx!.lineWidth = 1.2;
       ctx!.stroke();
 
       // Moon Crescent
       ctx!.strokeStyle = active ? LIME : '#71717a';
       ctx!.fillStyle = active ? LIME : '#71717a';
       ctx!.shadowColor = active ? LIME_GLOW : 'transparent';
-      ctx!.shadowBlur = active ? 12 : 0;
+      ctx!.shadowBlur = active ? 8 : 0;
 
       ctx!.save();
-      ctx!.translate(x - 1, y);
+      ctx!.translate(x - 0.5, y);
       ctx!.beginPath();
-      ctx!.arc(0, 0, 6.8, -Math.PI * 0.45, Math.PI * 0.45, false);
-      ctx!.arc(-3.2, 0, 5.8, Math.PI * 0.35, -Math.PI * 0.35, true);
+      ctx!.arc(0, 0, 4.8, -Math.PI * 0.45, Math.PI * 0.45, false);
+      ctx!.arc(-2.4, 0, 4.0, Math.PI * 0.35, -Math.PI * 0.35, true);
       ctx!.closePath();
       ctx!.fill();
       ctx!.restore();
       ctx!.shadowBlur = 0;
     }
 
-    // 2. Portal Void & Back Rim (Drawn behind the character)
+    // 2. Portal Void & Back Rim
     function drawPortalCavityAndBackRim(cx: number, cy: number, t: number) {
-      // Ambient glow pool
-      const pulse = 1 + 0.08 * Math.sin(t * 0.008);
-      const glowGrad = ctx!.createRadialGradient(cx, cy + 3, 6, cx, cy + 3, 56 * pulse);
-      glowGrad.addColorStop(0, 'rgba(197, 243, 106, 0.20)');
+      const pulse = 1 + 0.06 * Math.sin(t * 0.008);
+      const glowGrad = ctx!.createRadialGradient(cx, cy + 2, 4, cx, cy + 2, 38 * pulse);
+      glowGrad.addColorStop(0, 'rgba(197, 243, 106, 0.22)');
       glowGrad.addColorStop(1, 'rgba(197, 243, 106, 0)');
       ctx!.fillStyle = glowGrad;
       ctx!.beginPath();
-      ctx!.ellipse(cx, cy + 3, 56 * pulse, 18 * pulse, 0, 0, Math.PI * 2);
+      ctx!.ellipse(cx, cy + 2, 38 * pulse, 12 * pulse, 0, 0, Math.PI * 2);
       ctx!.fill();
 
       // Subterranean Void
-      const voidGrad = ctx!.createRadialGradient(cx, cy + 4, 0, cx, cy, rx);
+      const voidGrad = ctx!.createRadialGradient(cx, cy + 2, 0, cx, cy, rx);
       voidGrad.addColorStop(0, '#000000');
       voidGrad.addColorStop(0.65, '#030605');
       voidGrad.addColorStop(1, '#0e1611');
@@ -252,44 +250,42 @@ export default function ThemeTransitionPortal({
       ctx!.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
       ctx!.fill();
 
-      // Deep inner shadow on upper half
+      // Inner shadow
       ctx!.strokeStyle = 'rgba(0, 0, 0, 0.95)';
-      ctx!.lineWidth = 3.5;
+      ctx!.lineWidth = 2.4;
       ctx!.beginPath();
-      ctx!.ellipse(cx, cy + 1, rx - 2, ry - 1, 0, Math.PI, Math.PI * 2);
+      ctx!.ellipse(cx, cy + 0.8, rx - 1.5, ry - 0.8, 0, Math.PI, Math.PI * 2);
       ctx!.stroke();
 
-      // Back half of outer rim (dimmer)
+      // Back rim
       ctx!.strokeStyle = 'rgba(197, 243, 106, 0.50)';
-      ctx!.lineWidth = 2.0;
+      ctx!.lineWidth = 1.6;
       ctx!.beginPath();
       ctx!.ellipse(cx, cy, rx, ry, 0, Math.PI, Math.PI * 2);
       ctx!.stroke();
     }
 
-    // 3. Portal Front Lip & Foreground (Drawn ON TOP of character for genuine 3D occlusion)
+    // 3. Portal Front Lip (Drawn ON TOP of character for 3D occlusion)
     function drawPortalFrontRimOcclusion(cx: number, cy: number) {
-      // Front neon rim (closest to camera, brightest highlight)
       ctx!.strokeStyle = LIME;
-      ctx!.lineWidth = 2.4;
+      ctx!.lineWidth = 1.8;
       ctx!.shadowColor = LIME_GLOW;
-      ctx!.shadowBlur = 12;
+      ctx!.shadowBlur = 8;
       ctx!.beginPath();
       ctx!.ellipse(cx, cy, rx, ry, 0, 0, Math.PI);
       ctx!.stroke();
       ctx!.shadowBlur = 0;
 
-      // Subtle ground lip shading in front of the hole
-      const lipGrad = ctx!.createLinearGradient(cx, cy, cx, cy + 4);
+      const lipGrad = ctx!.createLinearGradient(cx, cy, cx, cy + 3);
       lipGrad.addColorStop(0, 'rgba(197, 243, 106, 0.35)');
       lipGrad.addColorStop(1, 'rgba(197, 243, 106, 0)');
       ctx!.fillStyle = lipGrad;
       ctx!.beginPath();
-      ctx!.ellipse(cx, cy + 1, rx, 3, 0, 0, Math.PI);
+      ctx!.ellipse(cx, cy + 0.5, rx, 2, 0, 0, Math.PI);
       ctx!.fill();
     }
 
-    // 4. Kinematic Stickman Drawing with Dynamic Theme Pigment
+    // 4. Scaled Kinematic Stickman Drawing
     function drawStickman(
       x: number,
       y: number,
@@ -306,19 +302,19 @@ export default function ThemeTransitionPortal({
 
       ctx!.strokeStyle = color;
       ctx!.fillStyle = color;
-      ctx!.lineWidth = 2.6;
+      ctx!.lineWidth = 1.9;
       ctx!.lineCap = 'round';
       ctx!.lineJoin = 'round';
       ctx!.shadowColor = color === AMBER ? AMBER_GLOW : LIME_GLOW;
-      ctx!.shadowBlur = 6;
+      ctx!.shadowBlur = 4;
 
-      const headR = 4.6;
+      const headR = 3.0;
       let headX = 0,
-        headY = -35;
+        headY = -22;
       const neckX = 0;
-      let neckY = -27;
+      let neckY = -17;
       const pelvisX = 0;
-      let pelvisY = -14;
+      let pelvisY = -8;
 
       let leftArmAngle = 0;
       let rightArmAngle = 0;
@@ -328,7 +324,6 @@ export default function ThemeTransitionPortal({
       let rightKneeAngle = 0;
 
       if (diveMode === 'dive') {
-        // Streamlined diver pose
         leftArmAngle = -Math.PI * 0.88;
         rightArmAngle = -Math.PI * 0.85;
         leftLegAngle = Math.PI * 0.10;
@@ -336,7 +331,6 @@ export default function ThemeTransitionPortal({
         leftKneeAngle = 0;
         rightKneeAngle = 0;
       } else if (diveMode === 'emerge') {
-        // Dynamic upward leap
         leftArmAngle = -Math.PI * 0.55;
         rightArmAngle = Math.PI * 0.24;
         leftLegAngle = -Math.PI * 0.28;
@@ -344,7 +338,6 @@ export default function ThemeTransitionPortal({
         leftKneeAngle = 0.5;
         rightKneeAngle = 0.75;
       } else if (walkCycle !== null) {
-        // Natural human stride with recovery knee bend
         const s = Math.sin(walkCycle);
 
         leftLegAngle = s * 0.65;
@@ -356,8 +349,7 @@ export default function ThemeTransitionPortal({
         leftArmAngle = -s * 0.6;
         rightArmAngle = s * 0.6;
 
-        // Step bobbing
-        const bob = -Math.abs(s) * 2.4;
+        const bob = -Math.abs(s) * 1.6;
         headY += bob;
         neckY += bob;
         pelvisY += bob * 0.7;
@@ -374,17 +366,11 @@ export default function ThemeTransitionPortal({
       ctx!.lineTo(pelvisX, pelvisY);
       ctx!.stroke();
 
-      // Back Arm
-      drawLimb(neckX, neckY + 2, rightArmAngle, 7.2, 0.4, 7.2);
-
-      // Back Leg
-      drawLeg(pelvisX, pelvisY, rightLegAngle, rightKneeAngle, 7.8, 7.8);
-
-      // Front Leg
-      drawLeg(pelvisX, pelvisY, leftLegAngle, leftKneeAngle, 7.8, 7.8);
-
-      // Front Arm
-      drawLimb(neckX, neckY + 2, leftArmAngle, 7.2, 0.3, 7.2);
+      // Limbs (compact lengths)
+      drawLimb(neckX, neckY + 1.5, rightArmAngle, 4.6, 0.4, 4.6);
+      drawLeg(pelvisX, pelvisY, rightLegAngle, rightKneeAngle, 4.8, 4.8);
+      drawLeg(pelvisX, pelvisY, leftLegAngle, leftKneeAngle, 4.8, 4.8);
+      drawLimb(neckX, neckY + 1.5, leftArmAngle, 4.6, 0.3, 4.6);
 
       ctx!.restore();
     }
@@ -438,18 +424,18 @@ export default function ThemeTransitionPortal({
 
       ctx!.clearRect(0, 0, width, height);
 
-      // 1. Draw Starfield, Track & Nodes
+      // 1. Draw Aesthetics, Track & Terminals
       drawBackgroundAesthetics(elapsed);
 
-      // 2. Draw Portal Void Cavity & Back Rim (Behind Character)
+      // 2. Draw Portal Void Cavity & Back Rim
       drawPortalCavityAndBackRim(portalX, portalY, elapsed);
 
-      // 3. Compute Character Kinematics & Transformation
-      const portalEdgeOffset = 36;
-      const startX = isLTR ? sunX + 18 : moonX - 18;
+      // 3. Compute Character Kinematics
+      const portalEdgeOffset = 22;
+      const startX = isLTR ? sunX + 12 : moonX - 12;
       const approachX = isLTR ? portalX - portalEdgeOffset : portalX + portalEdgeOffset;
       const emergeX = isLTR ? portalX + portalEdgeOffset : portalX - portalEdgeOffset;
-      const destX = isLTR ? moonX - 18 : sunX + 18;
+      const destX = isLTR ? moonX - 12 : sunX + 12;
 
       let charX = startX;
       let charY = groundY;
@@ -458,84 +444,65 @@ export default function ThemeTransitionPortal({
       let walkCycle: number | null = null;
       let diveMode: 'dive' | 'emerge' | null = null;
       let visible = true;
-
-      // Character color transforms after diving through subterranean portal
-      // Light-to-Dark: Amber -> dives -> emerges Lime
-      // Dark-to-Light: Lime -> dives -> emerges Amber
       let charColor = isLTR ? AMBER : LIME;
 
-      if (elapsed < 160) {
-        // Standing at departure node
+      if (elapsed < 140) {
         charX = startX;
         charY = groundY;
         walkCycle = 0;
         rotation = 0;
-      } else if (elapsed >= 160 && elapsed < 520) {
-        // Walking towards portal
-        const p = (elapsed - 160) / 360;
+      } else if (elapsed >= 140 && elapsed < 480) {
+        const p = (elapsed - 140) / 340;
         charX = startX + (approachX - startX) * p;
         charY = groundY;
-        walkCycle = (elapsed - 160) * 0.022;
-        rotation = facingSign * 0.10; // forward spine lean
-      } else if (elapsed >= 520 && elapsed < 700) {
-        // Leaping and diving into portal hole
-        const p = (elapsed - 520) / 180;
+        walkCycle = (elapsed - 140) * 0.024;
+        rotation = facingSign * 0.10;
+      } else if (elapsed >= 480 && elapsed < 660) {
+        const p = (elapsed - 480) / 180;
         diveMode = 'dive';
         charX = approachX + (portalX - approachX) * p;
 
-        // Parabolic jump arc: jumps up 16px, then plunges into hole
-        const jumpArc = -16 * Math.sin(p * Math.PI);
-        const plunge = 22 * Math.pow(p, 2);
+        const jumpArc = -11 * Math.sin(p * Math.PI);
+        const plunge = 15 * Math.pow(p, 2);
         charY = groundY + jumpArc + plunge;
 
-        // Rotates headfirst towards hole
         rotation = facingSign * (p * 1.35);
-
-        // Compresses into depth
         scale = Math.max(0.20, 1 - p * 0.80);
 
         if (p > 0.65 && !diveParticleFired) {
-          spawnParticles(portalX, portalY, 6, false, isLTR ? AMBER : LIME);
+          spawnParticles(portalX, portalY, 5, false, isLTR ? AMBER : LIME);
           diveParticleFired = true;
         }
 
         if (p > 0.88) {
           visible = false;
         }
-      } else if (elapsed >= 700 && elapsed < 740) {
-        // Fully submerged in void — Document theme swaps during this window
+      } else if (elapsed >= 660 && elapsed < 700) {
         visible = false;
-      } else if (elapsed >= 740 && elapsed < 980) {
-        // Emerging from portal in new theme pigment!
+      } else if (elapsed >= 700 && elapsed < 920) {
         charColor = isLTR ? LIME : AMBER;
-        const p = (elapsed - 740) / 240;
+        const p = (elapsed - 700) / 220;
         diveMode = 'emerge';
         charX = portalX + (emergeX - portalX) * p;
 
         if (p < 0.2 && !emergeParticleFired) {
-          spawnParticles(portalX, portalY, 8, true, charColor);
+          spawnParticles(portalX, portalY, 6, true, charColor);
           emergeParticleFired = true;
         }
 
-        // Upward leap arc out of hole
-        const leapArc = -22 * Math.sin(p * Math.PI);
+        const leapArc = -15 * Math.sin(p * Math.PI);
         charY = groundY + leapArc;
 
-        // Untwists back to vertical
         rotation = facingSign * ((1 - p) * -0.6);
-
-        // Expands back to full scale
         scale = Math.min(1, 0.25 + p * 0.75);
-      } else if (elapsed >= 980 && elapsed < 1180) {
-        // Walking to destination node in new pigment
+      } else if (elapsed >= 920 && elapsed < 1100) {
         charColor = isLTR ? LIME : AMBER;
-        const p = (elapsed - 980) / 200;
+        const p = (elapsed - 920) / 180;
         charX = emergeX + (destX - emergeX) * p;
         charY = groundY;
-        walkCycle = (elapsed - 980) * 0.022;
+        walkCycle = (elapsed - 920) * 0.024;
         rotation = facingSign * 0.08;
       } else {
-        // Arrived at destination node
         charColor = isLTR ? LIME : AMBER;
         charX = destX;
         charY = groundY;
@@ -555,14 +522,14 @@ export default function ThemeTransitionPortal({
         ctx!.restore();
       }
 
-      // 5. Draw Portal Front Lip (ON TOP of character for 3D occlusion)
+      // 5. Draw Portal Front Lip (Occlusion)
       drawPortalFrontRimOcclusion(portalX, portalY);
 
       // 6. Draw Sparkle Particles
       updateParticles(dt);
       drawParticles();
 
-      if (elapsed < 1350) {
+      if (elapsed < 1300) {
         animationFrameId = requestAnimationFrame(frameLoop);
       }
     }
@@ -578,12 +545,12 @@ export default function ThemeTransitionPortal({
 
   return (
     <div
-      className={`absolute right-0 top-full mt-2.5 z-50 origin-top-right w-[calc(100vw-32px)] max-w-[440px] h-[130px] rounded-[24px] overflow-hidden border pointer-events-auto bg-[#0B0E0C]/95 border-[#252D27] backdrop-blur-md transition-all duration-200 ${
+      className={`absolute right-0 top-full mt-2 z-50 origin-top-right w-[calc(100vw-32px)] max-w-[290px] h-[86px] rounded-2xl overflow-hidden border pointer-events-auto bg-[#0B0E0C]/95 border-[#252D27] backdrop-blur-md transition-all duration-200 ${
         isClosing ? 'opacity-0 scale-95' : 'animate-in fade-in zoom-in-95 opacity-100 scale-100'
       }`}
       style={{
         boxShadow:
-          '0 20px 50px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+          '0 14px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
       }}
       aria-live="polite"
       aria-label="Theme transition in progress"

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
 import ThemeToggle from './ThemeToggle';
 import ThemeTransitionPortal from './ThemeTransitionPortal';
 import { useTheme } from './ThemeProvider';
@@ -24,26 +24,41 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
   const [activeSection, setActiveSection] = useState<string>('about');
   const { isTransitioning, transitionDirection, currentPhase } = useTheme();
 
-  // Active section spy with hysteresis
+  // Active section scroll spy with hysteresis
   useEffect(() => {
-    const sectionIds = ['home', 'about', 'work', 'stack', 'problem-solving', 'contact'];
     const handleScroll = () => {
-      const scrollY = window.scrollY + 160;
-      for (let i = sectionIds.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sectionIds[i]);
+      const scrollY = window.scrollY + 180;
+      const sectionIds = ['contact', 'problem-solving', 'stack', 'work', 'about'];
+
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
         if (el) {
           const top = el.offsetTop;
           if (scrollY >= top) {
-            setActiveSection(sectionIds[i] === 'home' ? 'about' : sectionIds[i]);
-            break;
+            setActiveSection(id);
+            return;
           }
         }
       }
+
+      // Default to 'about' if near top
+      setActiveSection('about');
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    setActiveSection(id);
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -85;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
   }, []);
 
   return (
@@ -52,44 +67,56 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
         {/* Left Pill: Name / Brand */}
         <a
           href="#home"
-          className="glass-pill px-4 sm:px-5 py-2 rounded-full flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-wide text-theme-text hover:text-theme-accent transition-colors shadow-sm"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="glass-pill px-4 sm:px-5 py-2 rounded-full flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-wide text-theme-text hover:text-theme-accent transition-colors shadow-sm cursor-pointer"
         >
           <span className="w-2 h-2 rounded-full bg-theme-accent animate-pulse" />
           <span>Shehzan K.</span>
         </a>
 
-        {/* Center Pill: Desktop Navigation Links with Smooth Active Sliding Pill */}
-        <nav className="hidden md:flex glass-pill p-1 rounded-full items-center gap-1 text-xs sm:text-sm text-theme-muted font-medium shadow-sm relative">
-          {NAV_ITEMS.map((item) => {
-            const isActive = activeSection === item.id;
-            return (
-              <a
-                key={item.id}
-                href={item.href}
-                className={`relative px-4 py-1.5 rounded-full transition-colors duration-200 z-10 ${
-                  isActive ? 'text-theme-text font-semibold' : 'hover:text-theme-text text-theme-muted'
-                }`}
-              >
-                {isActive && (
-                  <motion.span
-                    layoutId="navbarActiveIndicator"
-                    className="absolute inset-0 rounded-full bg-theme-surface/90 border border-theme-border shadow-sm -z-10"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  />
-                )}
-                <span>{item.label}</span>
-              </a>
-            );
-          })}
-        </nav>
+        {/* Center Pill: Desktop Navigation Links with Shared LayoutId Glider */}
+        <LayoutGroup id="headerNav">
+          <nav className="hidden md:flex glass-pill p-1.5 rounded-full items-center gap-1 text-xs sm:text-sm font-medium shadow-sm relative">
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.id)}
+                  className={`relative px-4 py-1.5 rounded-full transition-colors duration-200 z-10 select-none cursor-pointer ${
+                    isActive ? 'text-theme-text font-bold' : 'hover:text-theme-text text-theme-muted'
+                  }`}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="activeNavPill"
+                      className="absolute inset-0 rounded-full bg-theme-surface border border-theme-border shadow-sm -z-10"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 350,
+                        damping: 28,
+                        mass: 0.8,
+                      }}
+                    />
+                  )}
+                  <span>{item.label}</span>
+                </a>
+              );
+            })}
+          </nav>
+        </LayoutGroup>
 
         {/* Right Group: Theme Toggle & CTA & Mobile Toggle */}
-        <div className="flex items-center gap-2">
-          {/* Animated Sun/Moon Theme Toggle with Floating Portal Capsule */}
+        <div className="flex items-center gap-2 relative">
+          {/* Animated Sun/Moon Theme Toggle with Compact Capsule Anchored Neatly */}
           <div className="relative">
             <ThemeToggle />
 
-            {/* Small Floating Portal Panel Anchored Directly to Toggle */}
+            {/* Compact Floating Portal Capsule (Max 290px wide x 86px high) */}
             <ThemeTransitionPortal
               isTransitioning={isTransitioning}
               direction={transitionDirection}
@@ -120,7 +147,7 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
         </div>
       </div>
 
-      {/* Mobile Dropdown Panel with AnimatePresence */}
+      {/* Mobile Dropdown Panel */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -134,7 +161,10 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
               <a
                 key={item.id}
                 href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  handleNavClick(e, item.id);
+                }}
                 className={`px-4 py-2.5 rounded-xl transition-colors ${
                   activeSection === item.id
                     ? 'bg-theme-surface text-theme-accent font-semibold border border-theme-border'
