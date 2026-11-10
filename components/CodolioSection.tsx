@@ -1,8 +1,43 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import { Award, Flame, Calendar, Trophy, ArrowUpRight, Github, CheckCircle2 } from 'lucide-react';
+import { Award, Calendar, Trophy, ArrowUpRight, Github, CheckCircle2, TrendingUp } from 'lucide-react';
+import { motion, useInView } from 'motion/react';
+
+// Restrained Animated Counter for Verified Engineering Statistics
+function AnimatedNumber({ value }: { value: number }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.5 });
+
+  useEffect(() => {
+    if (!isInView) return;
+
+    let start = 0;
+    const duration = 1200; // 1.2s smooth duration
+    const startTime = performance.now();
+
+    const updateCounter = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(easedProgress * value);
+      setDisplayValue(current);
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
+      } else {
+        setDisplayValue(value);
+      }
+    };
+
+    requestAnimationFrame(updateCounter);
+  }, [isInView, value]);
+
+  return <span ref={ref}>{displayValue.toLocaleString()}</span>;
+}
 
 export default function CodolioSection() {
   return (
@@ -17,47 +52,60 @@ export default function CodolioSection() {
           </h2>
         </div>
 
-        {/* Big Number Summary Banner */}
+        {/* Big Number Summary Banner — Grounded Exclusively in Verified Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {/* 1. Questions Solved */}
           <div className="glass-panel p-6 rounded-2xl border border-theme-border">
             <div className="flex items-center justify-between text-theme-muted text-xs font-mono mb-2">
               <span>QUESTIONS SOLVED</span>
               <Award className="w-4 h-4 text-theme-accent" />
             </div>
-            <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-theme-text">1,335</p>
+            <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-theme-text tracking-tight">
+              <AnimatedNumber value={1335} />+
+            </p>
             <p className="text-[11px] text-theme-muted font-mono mt-1">1,280 DSA · 55 Fundamentals</p>
           </div>
 
+          {/* 2. Active Days */}
           <div className="glass-panel p-6 rounded-2xl border border-theme-border">
             <div className="flex items-center justify-between text-theme-muted text-xs font-mono mb-2">
               <span>ACTIVE DAYS</span>
               <Calendar className="w-4 h-4 text-emerald-500" />
             </div>
-            <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-theme-text">616</p>
-            <p className="text-[11px] text-theme-muted font-mono mt-1">Consistency across platforms</p>
+            <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-theme-text tracking-tight">
+              <AnimatedNumber value={616} />
+            </p>
+            <p className="text-[11px] text-theme-muted font-mono mt-1">Consistent cross-platform practice</p>
           </div>
 
+          {/* 3. LeetCode Contest Rating */}
           <div className="glass-panel p-6 rounded-2xl border border-theme-border">
             <div className="flex items-center justify-between text-theme-muted text-xs font-mono mb-2">
-              <span>CURRENT & MAX STREAK</span>
-              <Flame className="w-4 h-4 text-amber-500" />
+              <span>CONTEST RATING</span>
+              <Trophy className="w-4 h-4 text-amber-500" />
             </div>
-            <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-amber-500">574</p>
-            <p className="text-[11px] text-theme-muted font-mono mt-1">Consecutive days active</p>
+            <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-theme-text tracking-tight">
+              <AnimatedNumber value={1598} />
+            </p>
+            <p className="text-[11px] text-theme-muted font-mono mt-1">Peak: 1634 · LeetCode Contests</p>
           </div>
 
+          {/* 4. Solved Hard & Optimization Problems */}
           <div className="glass-panel p-6 rounded-2xl border border-theme-border">
             <div className="flex items-center justify-between text-theme-muted text-xs font-mono mb-2">
-              <span>LEETCODE CONTEST</span>
-              <Trophy className="w-4 h-4 text-rose-500" />
+              <span>HARD PROBLEMS</span>
+              <TrendingUp className="w-4 h-4 text-rose-500" />
             </div>
-            <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-theme-text">1598</p>
-            <p className="text-[11px] text-theme-muted font-mono mt-1">Max Rating: 1634 · 3 Contests</p>
+            <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-rose-500 tracking-tight">
+              <AnimatedNumber value={207} />
+            </p>
+            <p className="text-[11px] text-theme-muted font-mono mt-1">16.2% of total DSA solved</p>
           </div>
         </div>
 
-        {/* Split Card: Codolio Visual Snapshot & Breakdown Details */}
+        {/* Split Card: Codolio Visual Snapshot & Rigor Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
           {/* Left Column: Real Profile Snapshot */}
           <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-theme-border bg-theme-surface shadow-xl relative group">
             <div className="aspect-[16/10] relative">
@@ -65,7 +113,7 @@ export default function CodolioSection() {
                 src="/assets/codolio-stats.jpg"
                 alt="Codolio Verified Problem Solving Statistics for Shehzan Khan"
                 fill
-                className="object-cover object-top opacity-95 group-hover:scale-102 transition-transform duration-500"
+                className="object-cover object-top opacity-95 group-hover:scale-[1.01] transition-transform duration-500"
               />
             </div>
             <div className="p-4 bg-theme-surface border-t border-theme-border flex items-center justify-between text-xs font-mono">
@@ -90,40 +138,61 @@ export default function CodolioSection() {
                 DSA Difficulty Distribution
               </h3>
 
-              <div className="space-y-3 font-mono text-xs">
+              <div className="space-y-3.5 font-mono text-xs">
+                {/* Easy */}
                 <div>
-                  <div className="flex justify-between mb-1">
+                  <div className="flex justify-between mb-1.5">
                     <span className="text-emerald-500 font-semibold">Easy (401 Solved)</span>
                     <span className="text-theme-muted">31.3%</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-theme-surface overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: '31.3%' }} />
+                  <div className="w-full h-2.5 rounded-full bg-theme-surface overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '31.3%' }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      className="h-full bg-emerald-500 rounded-full"
+                    />
                   </div>
                 </div>
 
+                {/* Medium */}
                 <div>
-                  <div className="flex justify-between mb-1">
+                  <div className="flex justify-between mb-1.5">
                     <span className="text-amber-500 font-semibold">Medium (672 Solved)</span>
                     <span className="text-theme-muted">52.5%</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-theme-surface overflow-hidden">
-                    <div className="h-full bg-amber-500 rounded-full" style={{ width: '52.5%' }} />
+                  <div className="w-full h-2.5 rounded-full bg-theme-surface overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '52.5%' }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                      className="h-full bg-amber-500 rounded-full"
+                    />
                   </div>
                 </div>
 
+                {/* Hard */}
                 <div>
-                  <div className="flex justify-between mb-1">
+                  <div className="flex justify-between mb-1.5">
                     <span className="text-rose-500 font-semibold">Hard (207 Solved)</span>
                     <span className="text-theme-muted">16.2%</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-theme-surface overflow-hidden">
-                    <div className="h-full bg-rose-500 rounded-full" style={{ width: '16.2%' }} />
+                  <div className="w-full h-2.5 rounded-full bg-theme-surface overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '16.2%' }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      className="h-full bg-rose-500 rounded-full"
+                    />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Core Focus Note */}
+            {/* Core Engineering Quote */}
             <div className="p-6 rounded-2xl bg-theme-surface border border-theme-border text-xs text-theme-muted leading-relaxed">
               <p className="font-semibold text-theme-text mb-2">Quote from Codolio Profile:</p>
               <p className="italic">
@@ -143,6 +212,7 @@ export default function CodolioSection() {
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </section>
