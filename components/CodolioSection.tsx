@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { Award, Calendar, Trophy, ArrowUpRight, Github, CheckCircle2, TrendingUp } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
+import { useTheme } from './ThemeProvider';
 
 // Restrained Animated Counter for Verified Engineering Statistics
 function AnimatedNumber({ value }: { value: number }) {
@@ -40,6 +41,8 @@ function AnimatedNumber({ value }: { value: number }) {
 }
 
 export default function CodolioSection() {
+  const { isDark } = useTheme();
+
   return (
     <section id="problem-solving" className="py-24 px-4 sm:px-6 md:px-12 lg:px-20 bg-theme-elevated border-t border-theme-border transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
@@ -106,14 +109,19 @@ export default function CodolioSection() {
         {/* Split Card: Codolio Visual Snapshot & Rigor Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          {/* Left Column: Real Profile Snapshot */}
+          {/* Left Column: Real Profile Snapshot with Theme-Aware CSS Inversion */}
           <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-theme-border bg-theme-surface shadow-xl relative group">
             <div className="aspect-[16/10] relative">
               <Image
-                src="/assets/codolio-stats.jpg"
+                src="/assets/DarkMode_Codolio.png"
                 alt="Codolio Verified Problem Solving Statistics for Shehzan Khan"
                 fill
-                className="object-cover object-top opacity-95 group-hover:scale-[1.01] transition-transform duration-500"
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                style={{
+                  filter: isDark ? 'none' : 'invert(1)',
+                  transition: 'filter 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms ease',
+                }}
+                className="object-cover object-top opacity-95 group-hover:scale-[1.01]"
               />
             </div>
             <div className="p-4 bg-theme-surface border-t border-theme-border flex items-center justify-between text-xs font-mono">
