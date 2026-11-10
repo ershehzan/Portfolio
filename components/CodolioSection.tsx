@@ -109,19 +109,31 @@ export default function CodolioSection() {
         {/* Split Card: Codolio Visual Snapshot & Rigor Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          {/* Left Column: Real Profile Snapshot with Theme-Aware CSS Inversion */}
+          {/* Left Column: Two Distinct Authentic Screenshots for Dark and Light Modes */}
           <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-theme-border bg-theme-surface shadow-xl relative group">
             <div className="aspect-[16/10] relative">
+              {/* Dark Mode Native Screenshot */}
               <Image
                 src="/assets/DarkMode_Codolio.png"
-                alt="Codolio Verified Problem Solving Statistics for Shehzan Khan"
+                alt="Codolio Verified Problem Solving Statistics for Shehzan Khan (Dark Mode)"
                 fill
                 sizes="(max-width: 1024px) 100vw, 55vw"
-                style={{
-                  filter: isDark ? 'none' : 'invert(1)',
-                  transition: 'filter 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms ease',
-                }}
-                className="object-cover object-top opacity-95 group-hover:scale-[1.01]"
+                className={`object-cover object-top transition-opacity duration-400 ease-out ${
+                  isDark ? 'opacity-95' : 'opacity-0 pointer-events-none'
+                }`}
+                priority
+              />
+
+              {/* Light Mode Native Screenshot */}
+              <Image
+                src="/assets/codolio-stats.jpg"
+                alt="Codolio Verified Problem Solving Statistics for Shehzan Khan (Light Mode)"
+                fill
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                className={`object-cover object-top transition-opacity duration-400 ease-out ${
+                  !isDark ? 'opacity-95' : 'opacity-0 pointer-events-none'
+                }`}
+                priority
               />
             </div>
             <div className="p-4 bg-theme-surface border-t border-theme-border flex items-center justify-between text-xs font-mono">
