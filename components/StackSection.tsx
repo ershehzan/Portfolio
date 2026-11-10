@@ -2,289 +2,243 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'motion/react';
-import { Cpu, Server, Database, GitBranch, Shield, Activity, Layers, Terminal } from 'lucide-react';
 
 interface ToolNode {
   id: string;
   name: string;
   badge: string;
-  tier: 'SYSTEMS' | 'BACKEND' | 'CORE';
-  tierLabel: string;
+  category: 'CORE' | 'BACKEND' | 'SYSTEMS';
   logo: string;
   description: string;
-  architectureRole: string;
-  concreteApplication: string;
-  connections: string[]; // Connected tool IDs
+  highlight: string;
+  coords: { x: number; y: number };
 }
 
-const SYSTEMS_NODES: ToolNode[] = [
+const TOOLS: ToolNode[] = [
   {
     id: 'cpp',
-    name: 'C++17',
-    badge: 'ISO C++17',
-    tier: 'SYSTEMS',
-    tierLabel: '01 // SYSTEMS & NETWORKING',
+    name: 'C++ — C++17',
+    badge: 'C++17',
+    category: 'CORE',
     logo: '/assets/logos/cpp.png',
-    description: 'Direct memory management, bitwise protocol encoding, STL algorithms, and zero-cost abstractions.',
-    architectureRole: 'Core systems language for native networking and high-performance algorithms.',
-    concreteApplication: 'SecureWebSocketClient-Cpp and low-level Data-Structure library implementations.',
-    connections: ['winsock', 'dsa'],
-  },
-  {
-    id: 'winsock',
-    name: 'Winsock & OpenSSL',
-    badge: 'RFC 6455',
-    tier: 'SYSTEMS',
-    tierLabel: '01 // SYSTEMS & NETWORKING',
-    logo: '/assets/logos/winsock.png',
-    description: 'Asynchronous Windows socket API (ws2_32) and TLS encrypted stream termination.',
-    architectureRole: 'Socket layer providing raw TCP/IP handshakes, byte streaming, and TLS cryptography.',
-    concreteApplication: 'Handcrafted WebSocket client with 4-byte bitwise frame XOR masking.',
-    connections: ['cpp'],
-  },
-  {
-    id: 'docker',
-    name: 'Docker',
-    badge: 'Containerization',
-    tier: 'SYSTEMS',
-    tierLabel: '01 // SYSTEMS & NETWORKING',
-    logo: '/assets/logos/docker.png',
-    description: 'Ephemeral zero-trust container environments, reproducible builds, and isolated process sandboxing.',
-    architectureRole: 'Runtime isolation layer preventing arbitrary execution during security audits.',
-    concreteApplication: 'Ephemeral zero-execution sandbox hosting Semgrep and Bandit scanners inside CodeGuard.',
-    connections: ['python', 'fastapi'],
+    description: 'Modern C++ with Standard Template Library, memory management, zero-overhead abstractions, and bitwise protocols.',
+    highlight: 'Used in SecureWebSocketClient-Cpp and Data-Structure implementations.',
+    coords: { x: 18, y: 18 },
   },
   {
     id: 'python',
-    name: 'Python 3.10+',
-    badge: 'High-Throughput',
-    tier: 'BACKEND',
-    tierLabel: '02 // BACKEND ENGINES & DATA',
+    name: 'Python',
+    badge: '3.10+',
+    category: 'CORE',
     logo: '/assets/logos/python.png',
-    description: 'Asynchronous task loops, multi-objective optimization algorithms, and LLM copilot orchestration.',
-    architectureRole: 'High-level engine powering mathematical optimization and multi-agent systems.',
-    concreteApplication: 'FlowForge AI Genetic Algorithms and CodeGuard three-agent pipeline.',
-    connections: ['fastapi', 'sql', 'docker'],
+    description: 'High-performance scripting, multi-objective optimization, and AI model orchestration.',
+    highlight: 'Used in FlowForge AI Genetic Algorithms and CodeGuard backend.',
+    coords: { x: 50, y: 12 },
   },
   {
     id: 'fastapi',
     name: 'FastAPI',
     badge: 'v0.121',
-    tier: 'BACKEND',
-    tierLabel: '02 // BACKEND ENGINES & DATA',
+    category: 'BACKEND',
     logo: '/assets/logos/fastapi.png',
-    description: 'High-throughput async ASGI web framework with Pydantic validation and automatic OpenAPI schemas.',
-    architectureRole: 'RESTful API gateway orchestrating background scheduling jobs and verification endpoints.',
-    concreteApplication: 'Production backend for FlowForge AI Gantt service and CodeGuard analysis API.',
-    connections: ['python', 'sql'],
+    description: 'Asynchronous Python web framework with type hinting, dependency injection, and high throughput.',
+    highlight: 'Powers real-time production endpoints and sandbox verification APIs.',
+    coords: { x: 82, y: 18 },
+  },
+  {
+    id: 'openssl',
+    name: 'Winsock & OpenSSL',
+    badge: 'RFC 6455',
+    category: 'SYSTEMS',
+    logo: '/assets/logos/winsock.png',
+    description: 'Direct Windows socket networking (WSA) and TLS cryptographic stream handling.',
+    highlight: 'Handcrafted WebSocket handshake and frame masking without external libraries.',
+    coords: { x: 86, y: 50 },
   },
   {
     id: 'sql',
-    name: 'SQL & Relational DBs',
-    badge: 'ACID Integrity',
-    tier: 'BACKEND',
-    tierLabel: '02 // BACKEND ENGINES & DATA',
+    name: 'SQL',
+    badge: 'Relational',
+    category: 'BACKEND',
     logo: '/assets/logos/sql.png',
-    description: 'Relational data modeling, schema indexing, multi-table transactions, and query performance tuning.',
-    architectureRole: 'Persistent operational storage guaranteeing transactional data consistency.',
-    concreteApplication: 'Persistent scheduling schedules, user state, and security audit logs.',
-    connections: ['fastapi', 'python'],
-  },
-  {
-    id: 'dsa',
-    name: 'Algorithms & DSA',
-    badge: '1,335+ Solved',
-    tier: 'CORE',
-    tierLabel: '03 // ALGORITHMIC RIGOR & WORKFLOW',
-    logo: '/assets/logos/codolio.png',
-    description: 'Graph theory, combinatorial state compression, dynamic programming, and complexity minimization.',
-    architectureRole: 'Foundational algorithmic problem solving applied to real-world constraint systems.',
-    concreteApplication: '1,335+ verified problems solved across 616 active days on LeetCode, GFG & HackerRank.',
-    connections: ['cpp', 'git'],
+    description: 'Relational database schema design, indexing strategies, and transactional ACID data integrity.',
+    highlight: 'Structured queries and persistent data modeling for backend applications.',
+    coords: { x: 80, y: 82 },
   },
   {
     id: 'git',
     name: 'Git & GitHub',
-    badge: 'Atomic Commits',
-    tier: 'CORE',
-    tierLabel: '03 // ALGORITHMIC RIGOR & WORKFLOW',
+    badge: '150+ Commits',
+    category: 'CORE',
     logo: '/assets/logos/git-github.png',
-    description: 'Branching workflows, atomic commit history, GitHub Actions CI pipelines, and repository management.',
-    architectureRole: 'Version control backbone enabling automated unit testing and regression verification.',
-    concreteApplication: '73 automated passing unit tests in FlowForge AI and multi-contributor pull requests.',
-    connections: ['dsa', 'docker'],
+    description: 'Version control, multi-contributor collaboration, branching workflows, and CI/CD automation.',
+    highlight: 'Active open-source developer on FlowForge AI, SecureWebSocketClient, and CodeGuard.',
+    coords: { x: 50, y: 88 },
+  },
+  {
+    id: 'docker',
+    name: 'Docker',
+    badge: 'Container',
+    category: 'SYSTEMS',
+    logo: '/assets/logos/docker.png',
+    description: 'Containerized ephemeral execution environments for zero-trust code analysis and reproducible builds.',
+    highlight: 'Isolating Semgrep and Bandit scanners within CodeGuard.',
+    coords: { x: 18, y: 82 },
+  },
+  {
+    id: 'dsa',
+    name: 'Codolio / DSA',
+    badge: '1,335+',
+    category: 'CORE',
+    logo: '/assets/logos/codolio.png',
+    description: 'Advanced data structures, graph theory, dynamic programming, and complexity tuning.',
+    highlight: '1,335 verified solved questions with a 574-day continuous streak.',
+    coords: { x: 14, y: 50 },
   },
 ];
 
 export default function StackSection() {
-  const [selectedNode, setSelectedNode] = useState<ToolNode>(SYSTEMS_NODES[0]);
-  const [activeTier, setActiveTier] = useState<'ALL' | 'SYSTEMS' | 'BACKEND' | 'CORE'>('ALL');
-
-  const filteredNodes = activeTier === 'ALL' 
-    ? SYSTEMS_NODES 
-    : SYSTEMS_NODES.filter(n => n.tier === activeTier);
+  const [selectedTool, setSelectedTool] = useState<ToolNode>(TOOLS[0]);
+  const [filter, setFilter] = useState<'ALL' | 'CORE' | 'BACKEND' | 'SYSTEMS'>('ALL');
 
   return (
     <section id="stack" className="py-24 px-4 sm:px-6 md:px-12 lg:px-20 bg-theme-bg border-t border-theme-border transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+        {/* Section Header matching Stack.png */}
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono text-theme-accent font-bold tracking-widest uppercase">04</span>
+            <span className="text-sm font-mono text-theme-accent font-bold tracking-wider">04</span>
             <span className="h-4 w-[1px] bg-theme-border" />
-            <h2 className="text-xs font-mono tracking-widest text-theme-muted uppercase font-semibold">
-              SYSTEMS ARCHITECTURE // CORE TECHNICAL STACK
+            <h2 className="text-xl md:text-2xl font-black tracking-tight text-theme-text uppercase">
+              MY STACK
             </h2>
           </div>
-
-          {/* Tier Filter Selector */}
-          <div className="flex items-center gap-1 p-1 rounded-full bg-theme-card border border-theme-border shadow-sm text-xs font-mono">
-            {(['ALL', 'SYSTEMS', 'BACKEND', 'CORE'] as const).map((tier) => (
-              <button
-                key={tier}
-                onClick={() => setActiveTier(tier)}
-                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
-                  activeTier === tier
-                    ? 'bg-theme-accent text-theme-accentContrast font-bold shadow-sm'
-                    : 'text-theme-muted hover:text-theme-text'
-                }`}
-              >
-                {tier}
-              </button>
-            ))}
-          </div>
+          <span className="text-xs font-mono text-theme-muted px-3 py-1 rounded-full bg-theme-surface border border-theme-border font-semibold">
+            8 core systems
+          </span>
         </div>
 
-        {/* Technical Systems Map Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Outer Mindmap Container matching Stack.png */}
+        <div className="relative rounded-3xl bg-theme-card border border-theme-border p-4 sm:p-12 min-h-[540px] sm:min-h-[620px] md:min-h-[680px] overflow-hidden flex flex-col justify-center items-center shadow-xl">
           
-          {/* Left Grid: Systems Architecture Nodes */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {filteredNodes.map((node) => {
-              const isSelected = selectedNode.id === node.id;
-              const isConnected = selectedNode.connections.includes(node.id);
+          {/* SVG Dashed Vector Connecting Lines */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            {TOOLS.map((tool) => (
+              <line
+                key={`line-${tool.id}`}
+                x1="50%"
+                y1="50%"
+                x2={`${tool.coords.x}%`}
+                y2={`${tool.coords.y}%`}
+                stroke={selectedTool.id === tool.id ? 'var(--accent)' : 'var(--border-strong)'}
+                strokeWidth={selectedTool.id === tool.id ? '2' : '1'}
+                strokeDasharray="4 4"
+                className="transition-all duration-300"
+              />
+            ))}
+          </svg>
 
-              return (
-                <motion.div
-                  key={node.id}
-                  layout
-                  onClick={() => setSelectedNode(node)}
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.2 }}
-                  className={`p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex items-start gap-3.5 ${
-                    isSelected
-                      ? 'bg-theme-card border-theme-accent ring-2 ring-theme-accent/30 shadow-lg'
-                      : isConnected
-                      ? 'bg-theme-card/90 border-theme-accent/50 shadow-sm'
-                      : 'bg-theme-card border-theme-border hover:border-theme-borderStrong shadow-sm'
+          {/* Center Hub */}
+          <div className="relative z-10 text-center max-w-[260px] sm:max-w-xs glass-panel px-6 sm:px-8 py-5 sm:py-6 rounded-3xl border border-theme-border shadow-xl">
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-theme-text tracking-tight leading-tight">
+              Tools I<br />live in.
+            </h3>
+            
+            {/* Tag Pills */}
+            <div className="flex items-center justify-center gap-1.5 mt-3 sm:mt-4">
+              {(['CORE', 'BACKEND', 'SYSTEMS'] as const).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setFilter(filter === cat ? 'ALL' : cat)}
+                  className={`text-[9px] sm:text-[10px] font-mono px-2 sm:px-2.5 py-1 rounded-full border transition-colors cursor-pointer ${
+                    filter === cat
+                      ? 'bg-theme-accent text-theme-accentContrast border-theme-accent font-bold'
+                      : 'bg-theme-surface border-theme-border text-theme-muted hover:text-theme-text'
                   }`}
                 >
-                  {/* Tech Logo */}
-                  <div className="w-10 h-10 rounded-xl bg-theme-surface p-2 border border-theme-border flex items-center justify-center shrink-0">
-                    <Image
-                      src={node.logo}
-                      alt={node.name}
-                      width={24}
-                      height={24}
-                      className="object-contain"
-                    />
-                  </div>
-
-                  {/* Node Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <h3 className="text-sm font-bold text-theme-text truncate">
-                        {node.name}
-                      </h3>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-theme-surface border border-theme-border text-theme-muted shrink-0">
-                        {node.badge}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-theme-muted line-clamp-2 leading-relaxed">
-                      {node.description}
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Right Panel: Selected System Deep-Dive Inspector */}
-          <div className="lg:col-span-5">
-            <div className="sticky top-28 glass-panel rounded-3xl p-6 sm:p-7 border border-theme-border shadow-xl space-y-5">
-              <div className="flex items-center justify-between pb-4 border-b border-theme-border">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-theme-surface p-2.5 border border-theme-border flex items-center justify-center">
-                    <Image
-                      src={selectedNode.logo}
-                      alt={selectedNode.name}
-                      width={32}
-                      height={32}
-                      className="object-contain"
-                    />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-mono font-bold tracking-wider text-theme-accent uppercase">
-                      {selectedNode.tierLabel}
-                    </span>
-                    <h3 className="text-xl font-black text-theme-text tracking-tight">
-                      {selectedNode.name}
-                    </h3>
-                  </div>
-                </div>
-
-                <span className="text-xs font-mono px-3 py-1 rounded-full bg-theme-accentSoft border border-theme-accent/30 text-theme-accent font-bold">
-                  {selectedNode.badge}
-                </span>
-              </div>
-
-              {/* Architectural Role */}
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-theme-muted font-bold block">
-                  SYSTEM ROLE & ARCHITECTURE
-                </span>
-                <p className="text-xs sm:text-sm text-theme-text leading-relaxed">
-                  {selectedNode.architectureRole}
-                </p>
-              </div>
-
-              {/* Concrete Application */}
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-theme-muted font-bold block">
-                  PORTFOLIO IMPLEMENTATION
-                </span>
-                <div className="p-3.5 rounded-xl bg-theme-surface border border-theme-border font-mono text-xs text-theme-text leading-relaxed">
-                  {selectedNode.concreteApplication}
-                </div>
-              </div>
-
-              {/* Connected Systems in Graph */}
-              <div className="space-y-2 pt-2 border-t border-theme-border">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-theme-muted font-bold block">
-                  DEPENDENCIES & DATA FLOW
-                </span>
-                <div className="flex flex-wrap items-center gap-2">
-                  {selectedNode.connections.map((connId) => {
-                    const connNode = SYSTEMS_NODES.find(n => n.id === connId);
-                    if (!connNode) return null;
-                    return (
-                      <button
-                        key={connId}
-                        onClick={() => setSelectedNode(connNode)}
-                        className="px-2.5 py-1 rounded-lg bg-theme-surface hover:bg-theme-surfaceHover border border-theme-border text-xs font-mono text-theme-muted hover:text-theme-text transition-colors flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-theme-accent" />
-                        <span>{connNode.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                  {cat}
+                </button>
+              ))}
             </div>
           </div>
 
+          {/* Orbiting Tool App Tiles */}
+          {TOOLS.map((tool) => {
+            const isMatch = filter === 'ALL' || filter === tool.category;
+            const isSelected = selectedTool.id === tool.id;
+
+            return (
+              <div
+                key={tool.id}
+                style={{
+                  left: `${tool.coords.x}%`,
+                  top: `${tool.coords.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+                className={`absolute z-20 flex flex-col items-center transition-all duration-300 ${
+                  isMatch ? 'opacity-100 scale-100' : 'opacity-25 scale-75'
+                }`}
+              >
+                <button
+                  onClick={() => setSelectedTool(tool)}
+                  className={`relative w-12 h-12 sm:w-16 sm:h-16 md:w-[72px] md:h-[72px] rounded-2xl md:rounded-[22px] bg-white flex items-center justify-center border shadow-xl hover:scale-110 active:scale-95 transition-all cursor-pointer group p-2 sm:p-2.5 ${
+                    isSelected ? 'ring-3 ring-theme-accent border-theme-accent shadow-theme-accent/20' : 'border-black/10 dark:border-white/20'
+                  }`}
+                  title={tool.name}
+                  aria-label={`Select tool ${tool.name}`}
+                >
+                  {/* Notification Count Badge */}
+                  <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[8px] sm:text-[9px] font-bold font-mono shadow-md z-10 border-2 border-theme-card">
+                    {tool.badge}
+                  </span>
+
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <Image
+                      src={tool.logo}
+                      alt={`${tool.name} logo`}
+                      fill
+                      sizes="(max-width: 640px) 48px, (max-width: 768px) 64px, 72px"
+                      className="object-contain p-0.5"
+                    />
+                  </div>
+                </button>
+
+                {/* Tool Name Label */}
+                <span className={`text-[9px] sm:text-[11px] font-mono font-medium mt-1.5 sm:mt-2 tracking-tight text-center max-w-[85px] sm:max-w-[100px] truncate transition-colors ${
+                  isSelected ? 'text-theme-accent font-bold' : 'text-theme-muted'
+                }`}>
+                  {tool.name}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Selected Tool Details Bar */}
+        <div className="mt-6 glass-panel rounded-2xl p-4 sm:p-5 border border-theme-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative w-12 h-12 rounded-2xl bg-white border border-theme-border flex items-center justify-center shrink-0 p-1.5 shadow-md">
+              <Image
+                src={selectedTool.logo}
+                alt={`${selectedTool.name} logo`}
+                fill
+                sizes="48px"
+                className="object-contain p-1"
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-bold text-theme-text">{selectedTool.name}</h4>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-theme-accent/20 text-theme-accent font-bold">
+                  {selectedTool.badge}
+                </span>
+              </div>
+              <p className="text-xs text-theme-muted mt-0.5">{selectedTool.description}</p>
+            </div>
+          </div>
+          <div className="text-xs font-mono text-theme-accent bg-theme-accentSoft px-3 py-2 rounded-xl border border-theme-accent/20 shrink-0 font-medium">
+            {selectedTool.highlight}
+          </div>
         </div>
       </div>
     </section>
