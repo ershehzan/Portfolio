@@ -1,0 +1,83 @@
+{
+  "checks": {
+    "navOrder": true,
+    "videoModal": true,
+    "stackRestored": true,
+    "codolioDark": true,
+    "codolioLight": true,
+    "mobileNoOverflow": true,
+    "mobileDrawer": true,
+    "reducedMotion": true
+  },
+  "linksVerified": [
+    {
+      "href": "#home",
+      "present": true
+    },
+    {
+      "href": "#about",
+      "present": true
+    },
+    {
+      "href": "#work",
+      "present": true
+    },
+    {
+      "href": "#stack",
+      "present": true
+    },
+    {
+      "href": "#problem-solving",
+      "present": true
+    },
+    {
+      "href": "#contact",
+      "present": true
+    },
+    {
+      "href": "https://mail.google.com/mail/?view=cm&fs=1&to=ershehzankhan@gmail.com",
+      "present": true
+    },
+    {
+      "href": "https://github.com/ershehzan/FlowForge-AI",
+      "present": true
+    },
+    {
+      "href": "https://flowforge-ai-uh0x.onrender.com/",
+      "present": true
+    },
+    {
+      "href": "https://github.com/shoryaagrawal553/codeneeti",
+      "present": true
+    },
+    {
+      "href": "https://codeguard-frontend-kb89.onrender.com/",
+      "present": true
+    },
+    {
+      "href": "https://github.com/ershehzan/SecureWebSocketClient-Cpp",
+      "present": true
+    },
+    {
+      "href": "https://codolio.com/profile/Shehzan_Khan",
+      "present": true
+    },
+    {
+      "href": "https://www.linkedin.com/in/shehzankhan/",
+      "present": true
+    },
+    {
+      "href": "https://github.com/ershehzan",
+      "present": true
+    },
+    {
+      "href": "tel:+918085116703",
+      "present": true
+    }
+  ],
+  "assetsVerified": [],
+  "consoleErrors": [],
+  "failedRequests": [
+    "GET http://localhost:3000/videos/FlowForge-AI.mp4 - net::ERR_ABORTED"
+  ]
+}
