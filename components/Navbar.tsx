@@ -113,10 +113,10 @@ export default function Navbar({ onCopyEmail }: NavbarProps) {
         {/* Right Group: Theme Toggle & CTA & Mobile Toggle */}
         <div className="flex items-center gap-2 relative">
           {/* Animated Sun/Moon Theme Toggle with Compact Capsule Anchored Neatly */}
-          <div className="relative">
+          <div className="relative flex items-center">
             <ThemeToggle />
 
-            {/* Compact Floating Portal Capsule (Max 290px wide x 86px high) */}
+            {/* Compact Floating Portal Capsule In-Row */}
             <ThemeTransitionPortal
               isTransitioning={isTransitioning}
               direction={transitionDirection}

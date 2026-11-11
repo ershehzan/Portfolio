@@ -16,8 +16,8 @@ export default function ThemeToggle({ className = '' }: ThemeToggleProps) {
       onClick={toggleTheme}
       disabled={isTransitioning}
       type="button"
-      className={`glass-pill relative p-2.5 rounded-full text-theme-text hover:text-theme-accent transition-all duration-300 flex items-center justify-center cursor-pointer group shadow-md ${
-        isTransitioning ? 'opacity-70 cursor-not-allowed pointer-events-none' : ''
+      className={`glass-pill relative p-2.5 rounded-full text-theme-text hover:text-theme-accent transition-all duration-300 flex items-center justify-center cursor-pointer group shadow-sm ${
+        isTransitioning ? 'opacity-0 pointer-events-none' : ''
       } ${className}`}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}

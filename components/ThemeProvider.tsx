@@ -93,7 +93,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setCurrentPhase('entering');
     setIsTransitioning(true);
 
-    // Swap document theme precisely at 580ms when character is submerged in portal void
+    // Swap document theme precisely at 1100ms when character is submerged in subterranean void
     setTimeout(() => {
       if (nextTheme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -110,12 +110,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         cleanUrl.searchParams.delete('theme');
         window.history.replaceState({}, '', cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ''));
       }
-    }, 580);
+    }, 1100);
 
     // Complete transition after character arrives and compact capsule closes
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 1150);
+    }, 2050);
   };
 
   return (
