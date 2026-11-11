@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { X, Play, Pause, Maximize, RotateCcw } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface VideoModalProps {
   isOpen: boolean;
@@ -112,146 +113,157 @@ export default function VideoModal({ isOpen, videoSrc, title, onClose }: VideoMo
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  if (!isOpen) return null;
-
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-10 bg-black/85 backdrop-blur-md"
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-    >
-      {/* Backdrop click to close */}
-      <div className="absolute inset-0" onClick={handleClose} />
-
-      <div className="relative w-full max-w-5xl bg-[#121613] rounded-2xl border border-white/15 shadow-2xl overflow-hidden flex flex-col z-10">
-        
-        {/* Modal Top Bar */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-[#0B0E0C]">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#C5F36A] animate-pulse" />
-            <h3 className="text-xs sm:text-sm font-semibold text-[#F4F5EF] tracking-wide truncate max-w-[280px] sm:max-w-md">
-              {title}
-            </h3>
-          </div>
-          <button
-            onClick={handleClose}
-            className="p-1.5 rounded-lg text-[#A5B49F] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-            aria-label="Close video"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Video Canvas Container */}
-        <div
-          className="relative aspect-video w-full bg-black flex items-center justify-center group cursor-pointer"
-          onClick={togglePlay}
-          onMouseEnter={() => setIsHoveringControls(true)}
-          onMouseLeave={() => setIsHoveringControls(false)}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-10 bg-black/80 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
         >
-          <video
-            ref={videoRef}
-            src={videoSrc}
-            playsInline
-            muted
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onEnded={() => setIsPlaying(false)}
-            className="w-full h-full object-contain"
-          />
+          {/* Backdrop click to close */}
+          <div className="absolute inset-0" onClick={handleClose} />
 
-          {/* Centered Large Play Overlay when Paused */}
-          {!isPlaying && (
-            <div className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-[#C5F36A]/90 text-black flex items-center justify-center shadow-2xl pointer-events-none transform transition-transform scale-100 hover:scale-110">
-              <Play className="w-8 h-8 fill-black ml-1" />
-            </div>
-          )}
-
-          {/* Custom Controls Bar (No volume/audio slider, with pause/play, seek, and fullscreen) */}
-          <div
-            className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/95 via-black/70 to-transparent transition-opacity duration-300 ${
-              isHoveringControls || !isPlaying ? 'opacity-100' : 'opacity-0'
-            }`}
-            onClick={(e) => e.stopPropagation()}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 15 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            className="relative w-full max-w-5xl bg-[#121613] rounded-2xl border border-white/15 shadow-2xl overflow-hidden flex flex-col z-10"
           >
-            {/* Scrubbable Progress Bar */}
+            {/* Modal Top Bar */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-[#0B0E0C]">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#C5F36A] animate-pulse" />
+                <h3 className="text-xs sm:text-sm font-semibold text-[#F4F5EF] tracking-wide truncate max-w-[280px] sm:max-w-md">
+                  {title}
+                </h3>
+              </div>
+              <button
+                onClick={handleClose}
+                className="p-1.5 rounded-lg text-[#A5B49F] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                aria-label="Close video"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Video Canvas Container */}
             <div
-              ref={progressBarRef}
-              onClick={handleSeek}
-              className="relative w-full h-2 bg-white/20 hover:h-3 rounded-full cursor-pointer transition-all mb-3 overflow-hidden"
-              role="slider"
-              aria-label="Seek video progress"
-              aria-valuenow={currentTime}
-              aria-valuemin={0}
-              aria-valuemax={duration}
+              className="relative aspect-video w-full bg-black flex items-center justify-center group cursor-pointer"
+              onClick={togglePlay}
+              onMouseEnter={() => setIsHoveringControls(true)}
+              onMouseLeave={() => setIsHoveringControls(false)}
             >
-              <div
-                className="absolute top-0 left-0 h-full bg-[#C5F36A] rounded-full"
-                style={{ width: `${progressPercent}%` }}
+              <video
+                ref={videoRef}
+                src={videoSrc}
+                playsInline
+                muted
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={() => setIsPlaying(false)}
+                className="w-full h-full object-contain"
               />
-            </div>
 
-            {/* Playback Controls Row */}
-            <div className="flex items-center justify-between text-xs font-mono text-[#F4F5EF]">
-              <div className="flex items-center gap-3">
-                {/* Play / Pause Toggle */}
-                <button
-                  onClick={togglePlay}
-                  type="button"
-                  className="p-2 rounded-lg bg-white/10 hover:bg-[#C5F36A] hover:text-black transition-colors cursor-pointer"
-                  aria-label={isPlaying ? 'Pause video' : 'Play video'}
+              {/* Centered Large Play Overlay when Paused */}
+              {!isPlaying && (
+                <div className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-[#C5F36A]/90 text-black flex items-center justify-center shadow-2xl pointer-events-none transform transition-transform scale-100 hover:scale-110">
+                  <Play className="w-8 h-8 fill-black ml-1" />
+                </div>
+              )}
+
+              {/* Custom Controls Bar */}
+              <div
+                className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/95 via-black/70 to-transparent transition-opacity duration-300 ${
+                  isHoveringControls || !isPlaying ? 'opacity-100' : 'opacity-0'
+                }`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Scrubbable Progress Bar */}
+                <div
+                  ref={progressBarRef}
+                  onClick={handleSeek}
+                  className="relative w-full h-2 bg-white/20 hover:h-3 rounded-full cursor-pointer transition-all mb-3 overflow-hidden"
+                  role="slider"
+                  aria-label="Seek video progress"
+                  aria-valuenow={currentTime}
+                  aria-valuemin={0}
+                  aria-valuemax={duration}
                 >
-                  {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
-                </button>
+                  <div
+                    className="absolute top-0 left-0 h-full bg-[#C5F36A] rounded-full"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
 
-                {/* Restart */}
-                <button
-                  onClick={() => {
-                    if (videoRef.current) {
-                      videoRef.current.currentTime = 0;
-                      videoRef.current.play();
-                      setIsPlaying(true);
-                    }
-                  }}
-                  type="button"
-                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
-                  title="Replay from start"
-                  aria-label="Replay from start"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                </button>
+                {/* Playback Controls Row */}
+                <div className="flex items-center justify-between text-xs font-mono text-[#F4F5EF]">
+                  <div className="flex items-center gap-3">
+                    {/* Play / Pause Toggle */}
+                    <button
+                      onClick={togglePlay}
+                      type="button"
+                      className="p-2 rounded-lg bg-white/10 hover:bg-[#C5F36A] hover:text-black transition-colors cursor-pointer"
+                      aria-label={isPlaying ? 'Pause video' : 'Play video'}
+                    >
+                      {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
+                    </button>
 
-                {/* Time Display */}
-                <span className="text-white/80 select-none">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
+                    {/* Restart */}
+                    <button
+                      onClick={() => {
+                        if (videoRef.current) {
+                          videoRef.current.currentTime = 0;
+                          videoRef.current.play();
+                          setIsPlaying(true);
+                        }
+                      }}
+                      type="button"
+                      className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
+                      title="Replay from start"
+                      aria-label="Replay from start"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Time Display */}
+                    <span className="text-white/80 select-none">
+                      {formatTime(currentTime)} / {formatTime(duration)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-[#A5B49F] font-mono mr-1">
+                      [MUTED DEMO]
+                    </span>
+                    
+                    {/* Fullscreen Button */}
+                    <button
+                      onClick={handleFullscreen}
+                      type="button"
+                      className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
+                      title="Fullscreen"
+                      aria-label="Fullscreen"
+                    >
+                      <Maximize className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-[#A5B49F] font-mono mr-1">
-                  [MUTED DEMO]
-                </span>
-                
-                {/* Fullscreen Button */}
-                <button
-                  onClick={handleFullscreen}
-                  type="button"
-                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
-                  title="Fullscreen"
-                  aria-label="Fullscreen"
-                >
-                  <Maximize className="w-4 h-4" />
-                </button>
-              </div>
             </div>
-          </div>
 
-        </div>
-
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
