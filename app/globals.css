@@ -300,14 +300,14 @@ a:not(.no-theme-trans) {
   to { transform: translateY(-1.5px); }
 }
 
-/* Reference Short Dive (Desktop: w=184px, Center x=75 into Right Portal x=148) */
-@keyframes shortDive {
+/* Reference Short Dive: LTR (Left to Right, Light -> Dark) */
+@keyframes shortDiveLTR {
   0% {
-    transform: translateX(75px) translateY(0) scale(0.9) rotate(0deg);
+    transform: translateX(65px) translateY(0) scale(0.9) rotate(0deg);
     opacity: 0;
   }
   8% {
-    transform: translateX(80px) translateY(0) scale(1) rotate(0deg);
+    transform: translateX(72px) translateY(0) scale(1) rotate(0deg);
     opacity: 1;
   }
   30% {
@@ -316,7 +316,7 @@ a:not(.no-theme-trans) {
   }
   /* Calm Jump Arc at Portal Edge */
   40% {
-    transform: translateX(128px) translateY(-10px) scale(0.98) rotate(28deg);
+    transform: translateX(126px) translateY(-10px) scale(0.98) rotate(28deg);
     opacity: 1;
   }
   /* Dive Down into Portal */
@@ -357,8 +357,65 @@ a:not(.no-theme-trans) {
   }
 }
 
-/* Mobile Short Dive (w=84px, Center x=30 into Right Portal x=60) */
-@keyframes shortDiveMobile {
+/* Reference Short Dive: RTL (Right to Left, Dark -> Light) - Mirrored Horizontally */
+@keyframes shortDiveRTL {
+  0% {
+    transform: translateX(119px) translateY(0) scaleX(-1) scale(0.9) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    transform: translateX(112px) translateY(0) scaleX(-1) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(74px) translateY(0) scaleX(-1) scale(1) rotate(4deg);
+    opacity: 1;
+  }
+  /* Calm Jump Arc at Left Portal Edge */
+  40% {
+    transform: translateX(58px) translateY(-10px) scaleX(-1) scale(0.98) rotate(28deg);
+    opacity: 1;
+  }
+  /* Dive Down into Left Portal */
+  48% {
+    transform: translateX(42px) translateY(4px) scaleX(-1) scale(0.7) rotate(68deg);
+    opacity: 0.9;
+  }
+  /* Subterranean Occlusion behind Left Front Rim */
+  53% {
+    transform: translateX(36px) translateY(12px) scaleX(-1) scale(0.3) rotate(85deg);
+    opacity: 0.35;
+  }
+  /* Fully Submerged Void: Theme Swap Occurs at 55% (~1100ms) */
+  56% {
+    transform: translateX(36px) translateY(18px) scaleX(-1) scale(0.05) rotate(90deg);
+    opacity: 0;
+  }
+  /* Emerge Upward from Left Portal */
+  64% {
+    transform: translateX(36px) translateY(4px) scaleX(-1) scale(0.5) rotate(-20deg);
+    opacity: 0.6;
+  }
+  72% {
+    transform: translateX(48px) translateY(-8px) scaleX(-1) scale(0.95) rotate(-8deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(66px) translateY(0) scaleX(-1) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(94px) translateY(0) scaleX(-1) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(104px) translateY(0) scaleX(-1) scale(0.95) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+/* Mobile Short Dive: LTR (w=84px, Left to Right) */
+@keyframes shortDiveMobileLTR {
   0% {
     transform: translateX(30px) translateY(0) scale(0.85) rotate(0deg);
     opacity: 0;
@@ -414,11 +471,76 @@ a:not(.no-theme-trans) {
   }
 }
 
-.animate-short-dive {
-  animation: shortDive 2.0s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+/* Mobile Short Dive: RTL (w=84px, Right to Left) - Mirrored Horizontally */
+@keyframes shortDiveMobileRTL {
+  0% {
+    transform: translateX(42px) translateY(0) scaleX(-1) scale(0.85) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    transform: translateX(39px) translateY(0) scaleX(-1) scale(0.9) rotate(0deg);
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(28px) translateY(0) scaleX(-1) scale(0.9) rotate(4deg);
+    opacity: 1;
+  }
+  /* Jump Arc at Left Portal Edge */
+  40% {
+    transform: translateX(20px) translateY(-7px) scaleX(-1) scale(0.88) rotate(28deg);
+    opacity: 1;
+  }
+  /* Dive Down into Left Portal */
+  48% {
+    transform: translateX(14px) translateY(3px) scaleX(-1) scale(0.65) rotate(68deg);
+    opacity: 0.9;
+  }
+  /* Subterranean Occlusion behind Left Front Rim */
+  53% {
+    transform: translateX(11px) translateY(8px) scaleX(-1) scale(0.28) rotate(85deg);
+    opacity: 0.35;
+  }
+  /* Fully Submerged Void: Theme Swap Occurs at 55% (~1100ms) */
+  56% {
+    transform: translateX(11px) translateY(14px) scaleX(-1) scale(0.05) rotate(90deg);
+    opacity: 0;
+  }
+  /* Emerge Upward from Left Portal */
+  64% {
+    transform: translateX(11px) translateY(3px) scaleX(-1) scale(0.48) rotate(-20deg);
+    opacity: 0.6;
+  }
+  72% {
+    transform: translateX(18px) translateY(-5px) scaleX(-1) scale(0.88) rotate(-8deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(26px) translateY(0) scaleX(-1) scale(0.9) rotate(0deg);
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(36px) translateY(0) scaleX(-1) scale(0.9) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(40px) translateY(0) scaleX(-1) scale(0.85) rotate(0deg);
+    opacity: 0;
+  }
 }
 
-.animate-short-dive-mobile {
-  animation: shortDiveMobile 2.0s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+.animate-short-dive-ltr {
+  animation: shortDiveLTR 2.0s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+}
+
+.animate-short-dive-rtl {
+  animation: shortDiveRTL 2.0s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+}
+
+.animate-short-dive-mobile-ltr {
+  animation: shortDiveMobileLTR 2.0s cubic-bezier(0.35, 0, 0.25, 1) forwards;
+}
+
+.animate-short-dive-mobile-rtl {
+  animation: shortDiveMobileRTL 2.0s cubic-bezier(0.35, 0, 0.25, 1) forwards;
 }
 

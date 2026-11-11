@@ -22,7 +22,7 @@ export default function ThemeTransitionPortal({
       return;
     }
 
-    // Begin pill smooth close animation slightly before unmount (at 1750ms of 2050ms total)
+    // Begin capsule smooth close animation slightly before unmount (at 1750ms of 2050ms total)
     const exitTimer = setTimeout(() => {
       setIsClosing(true);
     }, 1750);
@@ -33,8 +33,8 @@ export default function ThemeTransitionPortal({
   if (!isTransitioning) return null;
 
   const isSwapped = currentPhase === 'swapped';
-  // Both Light->Dark and Dark->Light execute identical physical choreography (Center -> Right Portal Dive).
-  // Separate theme visual styling:
+  const isLTR = direction === 'light-to-dark'; // Light -> Dark: Left to Right
+  // Palette styling:
   // - dark-to-light: starts dark, transitions to light when swapped
   // - light-to-dark: starts light, transitions to dark when swapped
   const isLightNow = direction === 'dark-to-light' ? isSwapped : !isSwapped;
@@ -53,20 +53,21 @@ export default function ThemeTransitionPortal({
       aria-live="polite"
       aria-label="Theme transition in progress"
     >
-      {/* Subtle Ambient Inner Glow */}
+      {/* Subtle Ambient Inner Glow anchored near portal */}
       <div
-        className={`absolute w-14 h-14 rounded-full blur-lg pointer-events-none -top-3 right-3 transition-colors duration-500 opacity-20 ${
-          isLightNow ? 'bg-amber-400' : 'bg-[#C5F36A]'
-        }`}
+        className={`absolute w-14 h-14 rounded-full blur-lg pointer-events-none -top-3 transition-colors duration-500 opacity-20 ${
+          isLTR ? 'right-3' : 'left-3'
+        } ${isLightNow ? 'bg-amber-400' : 'bg-[#C5F36A]'}`}
       />
 
-      {/* Left Icon: Morphing Sun / Moon Indicator */}
+      {/* Morphing Sun / Moon Indicator:
+          - LTR (Light -> Dark): Anchored on LEFT
+          - RTL (Dark -> Light): Anchored on RIGHT
+      */}
       <div
-        className={`absolute left-2 md:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-5 md:h-5 flex items-center justify-center z-10 transition-all duration-400 ${
-          isLightNow
-            ? 'text-amber-500 scale-105'
-            : 'text-zinc-100 scale-100'
-        }`}
+        className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-5 md:h-5 flex items-center justify-center z-10 transition-all duration-400 ${
+          isLTR ? 'left-2.5 md:left-3' : 'right-2.5 md:right-3'
+        } ${isLightNow ? 'text-amber-500 scale-105' : 'text-zinc-100 scale-100'}`}
       >
         {isLightNow ? (
           <Sun
@@ -85,8 +86,15 @@ export default function ThemeTransitionPortal({
         )}
       </div>
 
-      {/* Right Portal Cavity (z-10, Subterranean Radial Cavity Behind Actor) */}
-      <div className="absolute right-1.5 md:right-3 bottom-1.5 w-5 md:w-8 h-2 md:h-2.5 z-10 pointer-events-none">
+      {/* Subterranean Portal Cavity (z-10, Deep Void Behind Actor):
+          - LTR (Light -> Dark): Cavity on RIGHT
+          - RTL (Dark -> Light): Cavity on LEFT
+      */}
+      <div
+        className={`absolute bottom-1.5 w-5 md:w-8 h-2 md:h-2.5 z-10 pointer-events-none ${
+          isLTR ? 'right-1.5 md:right-3' : 'left-1.5 md:left-3'
+        }`}
+      >
         <div
           className={`w-full h-full rounded-[50%] border-1.5 transition-all duration-400 ${
             isLightNow
@@ -96,9 +104,13 @@ export default function ThemeTransitionPortal({
         />
       </div>
 
-      {/* Desktop Character Actor Layer (z-20) - Identical Center-to-Right Choreography */}
+      {/* Desktop Character Actor Layer (z-20) */}
       <div className="hidden md:block absolute inset-0 pointer-events-none overflow-hidden z-20">
-        <div className="stickman-journey absolute bottom-1.5 left-0 w-[16px] h-[22px] animate-short-dive">
+        <div
+          className={`stickman-journey absolute bottom-1.5 left-0 w-[16px] h-[22px] ${
+            isLTR ? 'animate-short-dive-ltr' : 'animate-short-dive-rtl'
+          }`}
+        >
           <svg
             viewBox="0 0 24 36"
             width="16"
@@ -123,9 +135,13 @@ export default function ThemeTransitionPortal({
         </div>
       </div>
 
-      {/* Mobile Character Actor Layer (z-20) - Identical Center-to-Right Choreography */}
+      {/* Mobile Character Actor Layer (z-20) */}
       <div className="block md:hidden absolute inset-0 pointer-events-none overflow-hidden z-20">
-        <div className="stickman-journey absolute bottom-1.5 left-0 w-[12px] h-[16px] animate-short-dive-mobile">
+        <div
+          className={`stickman-journey absolute bottom-1.5 left-0 w-[12px] h-[16px] ${
+            isLTR ? 'animate-short-dive-mobile-ltr' : 'animate-short-dive-mobile-rtl'
+          }`}
+        >
           <svg
             viewBox="0 0 24 36"
             width="12"
@@ -148,8 +164,15 @@ export default function ThemeTransitionPortal({
         </div>
       </div>
 
-      {/* Right Portal Front Lip (z-30: Genuine 3D Subterranean Front-Rim Occlusion) */}
-      <div className="absolute right-1.5 md:right-3 bottom-1.5 w-5 md:w-8 h-1 md:h-1.25 z-30 pointer-events-none overflow-hidden">
+      {/* Subterranean Portal Front Lip (z-30: Genuine 3D Front-Rim Occlusion):
+          - LTR (Light -> Dark): Front Lip on RIGHT
+          - RTL (Dark -> Light): Front Lip on LEFT
+      */}
+      <div
+        className={`absolute bottom-1.5 w-5 md:w-8 h-1 md:h-1.25 z-30 pointer-events-none overflow-hidden ${
+          isLTR ? 'right-1.5 md:right-3' : 'left-1.5 md:left-3'
+        }`}
+      >
         <div
           className={`w-5 md:w-8 h-2 md:h-2.5 -mt-1 md:-mt-1.25 rounded-[50%] border-1.5 transition-all duration-400 ${
             isLightNow
