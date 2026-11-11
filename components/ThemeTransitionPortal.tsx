@@ -39,6 +39,11 @@ export default function ThemeTransitionPortal({
   // - light-to-dark: starts light, transitions to dark when swapped
   const isLightNow = direction === 'dark-to-light' ? isSwapped : !isSwapped;
 
+  // Stickman color:
+  // - Light -> Dark: Black (#000000) for clear visibility against light capsule
+  // - Dark -> Light: White (#FFFFFF) for clear visibility against dark capsule
+  const stickmanColor = direction === 'light-to-dark' ? '#000000' : '#FFFFFF';
+
   return (
     <div
       className={`absolute right-0 top-1/2 -translate-y-1/2 z-50 origin-right w-[84px] md:w-[184px] h-[36px] md:h-[38px] rounded-full overflow-hidden border backdrop-blur-md pointer-events-auto select-none transition-all duration-300 ${
@@ -116,14 +121,14 @@ export default function ThemeTransitionPortal({
             width="16"
             height="22"
             fill="none"
-            stroke="#FFFFFF"
+            stroke={stickmanColor}
             strokeWidth="2.0"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            {/* Tiny White Stickman Body & Head */}
+            {/* Character Body & Head with calibrated theme contrast */}
             <g className="theme-body-bob">
-              <circle cx="12" cy="5.5" r="3.2" fill="#FFFFFF" stroke="none" />
+              <circle cx="12" cy="5.5" r="3.2" fill={stickmanColor} stroke="none" />
               <line x1="12" y1="9" x2="12" y2="20" />
             </g>
             {/* Natural Limb Swing */}
@@ -147,13 +152,13 @@ export default function ThemeTransitionPortal({
             width="12"
             height="16"
             fill="none"
-            stroke="#FFFFFF"
+            stroke={stickmanColor}
             strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
             <g className="theme-body-bob">
-              <circle cx="12" cy="5.5" r="3.2" fill="#FFFFFF" stroke="none" />
+              <circle cx="12" cy="5.5" r="3.2" fill={stickmanColor} stroke="none" />
               <line x1="12" y1="9" x2="12" y2="20" />
             </g>
             <path className="theme-arm-back" d="M12 13 L7 18" />
