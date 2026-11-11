@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Sun, Moon } from 'lucide-react';
 
 interface ThemeTransitionPortalProps {
   isTransitioning: boolean;
@@ -8,21 +9,11 @@ interface ThemeTransitionPortalProps {
   currentPhase: 'entering' | 'swapped';
 }
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  alpha: number;
-  size: number;
-  color: string;
-}
-
 export default function ThemeTransitionPortal({
   isTransitioning,
   direction,
+  currentPhase,
 }: ThemeTransitionPortalProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
@@ -39,527 +30,143 @@ export default function ThemeTransitionPortal({
     return () => clearTimeout(exitTimer);
   }, [isTransitioning]);
 
-  useEffect(() => {
-    if (!isTransitioning || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animationFrameId: number;
-    const startTime = performance.now();
-    const particles: Particle[] = [];
-    let diveParticleFired = false;
-    let emergeParticleFired = false;
-
-    // Retina / High-DPI crisp rendering
-    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-    const rect = canvas.getBoundingClientRect();
-    const width = rect.width || 290;
-    const height = rect.height || 86;
-
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    ctx.scale(dpr, dpr);
-
-    // Compact Proportions
-    const groundY = height * 0.70; // ground track at y = 60px
-    const portalX = width / 2;
-    const portalY = groundY;
-    const rx = 26; // portal horizontal radius
-    const ry = 7.5; // portal vertical radius
-    const sunX = Math.max(34, width * 0.13);
-    const moonX = Math.min(width - 34, width * 0.87);
-
-    const isLTR = direction === 'light-to-dark';
-    const facingSign = isLTR ? 1 : -1;
-
-    // Theme color palettes
-    const AMBER = '#F59E0B';
-    const AMBER_GLOW = 'rgba(245, 158, 11, 0.4)';
-    const LIME = '#C5F36A';
-    const LIME_GLOW = 'rgba(197, 243, 106, 0.4)';
-
-    function spawnParticles(x: number, y: number, count: number, upward = false, color = LIME) {
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: x + (Math.random() - 0.5) * 14,
-          y: y + (Math.random() - 0.5) * 4,
-          vx: (Math.random() - 0.5) * 1.8,
-          vy: upward ? -(Math.random() * 1.8 + 0.8) : Math.random() * 1.6 - 0.8,
-          alpha: 1,
-          size: Math.random() * 1.6 + 0.8,
-          color,
-        });
-      }
-    }
-
-    function updateParticles(dt: number) {
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.alpha -= dt * 2.4;
-        if (p.alpha <= 0) {
-          particles.splice(i, 1);
-        }
-      }
-    }
-
-    function drawParticles() {
-      for (const p of particles) {
-        ctx!.fillStyle = p.color;
-        ctx!.globalAlpha = Math.max(0, p.alpha);
-        ctx!.shadowColor = p.color;
-        ctx!.shadowBlur = 6;
-        ctx!.beginPath();
-        ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx!.fill();
-        ctx!.shadowBlur = 0;
-        ctx!.globalAlpha = 1;
-      }
-    }
-
-    // 1. Draw Subtle Micro-Track & Nodes
-    function drawBackgroundAesthetics(t: number) {
-      // Subtle starry constellation dots
-      ctx!.fillStyle = 'rgba(255, 255, 255, 0.09)';
-      const stars = [
-        { x: 22, y: 18 }, { x: 70, y: 24 }, { x: 120, y: 15 },
-        { x: 175, y: 20 }, { x: 225, y: 14 }, { x: 270, y: 22 },
-        { x: 145, y: 18 }, { x: 45, y: 42 }, { x: 245, y: 40 }
-      ];
-      for (const star of stars) {
-        ctx!.beginPath();
-        ctx!.arc(star.x, star.y, 0.85, 0, Math.PI * 2);
-        ctx!.fill();
-      }
-
-      // Ground Track
-      ctx!.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx!.lineWidth = 1.2;
-      ctx!.beginPath();
-      ctx!.moveTo(sunX - 12, groundY);
-      ctx!.lineTo(moonX + 12, groundY);
-      ctx!.stroke();
-
-      // Track connection glow
-      const trackGrad = ctx!.createLinearGradient(sunX, groundY, moonX, groundY);
-      trackGrad.addColorStop(0, isLTR ? 'rgba(245, 158, 11, 0.30)' : 'rgba(245, 158, 11, 0.12)');
-      trackGrad.addColorStop(0.5, 'rgba(197, 243, 106, 0.20)');
-      trackGrad.addColorStop(1, !isLTR ? 'rgba(197, 243, 106, 0.30)' : 'rgba(197, 243, 106, 0.12)');
-      ctx!.strokeStyle = trackGrad;
-      ctx!.lineWidth = 1;
-      ctx!.beginPath();
-      ctx!.moveTo(sunX, groundY);
-      ctx!.lineTo(moonX, groundY);
-      ctx!.stroke();
-
-      // Sun Node (left)
-      const sunActive = isLTR ? t < 650 : t >= 1050;
-      drawSunNode(sunX, groundY - 11, sunActive, t);
-
-      // Moon Node (right)
-      const moonActive = isLTR ? t >= 1050 : t < 650;
-      drawMoonNode(moonX, groundY - 11, moonActive, t);
-    }
-
-    function drawSunNode(x: number, y: number, active: boolean, t: number) {
-      ctx!.beginPath();
-      ctx!.arc(x, y, 11, 0, Math.PI * 2);
-      ctx!.fillStyle = active ? 'rgba(245, 158, 11, 0.20)' : 'rgba(255, 255, 255, 0.03)';
-      ctx!.fill();
-      ctx!.strokeStyle = active ? 'rgba(245, 158, 11, 0.70)' : 'rgba(255, 255, 255, 0.10)';
-      ctx!.lineWidth = 1.2;
-      ctx!.stroke();
-
-      // Sun Core
-      ctx!.strokeStyle = active ? AMBER : '#71717a';
-      ctx!.fillStyle = active ? AMBER : 'transparent';
-      ctx!.lineWidth = 1.4;
-      ctx!.shadowColor = active ? AMBER_GLOW : 'transparent';
-      ctx!.shadowBlur = active ? 8 : 0;
-
-      ctx!.beginPath();
-      ctx!.arc(x, y, 3.8, 0, Math.PI * 2);
-      ctx!.stroke();
-
-      // Rotating Sun Rays
-      const rayLen = 2.4;
-      const rayOffset = 5.8;
-      const rayRotation = (t * 0.001) % (Math.PI * 2);
-      for (let i = 0; i < 8; i++) {
-        const angle = (i * Math.PI) / 4 + (active ? rayRotation : 0);
-        const x1 = x + Math.cos(angle) * rayOffset;
-        const y1 = y + Math.sin(angle) * rayOffset;
-        const x2 = x + Math.cos(angle) * (rayOffset + rayLen);
-        const y2 = y + Math.sin(angle) * (rayOffset + rayLen);
-        ctx!.beginPath();
-        ctx!.moveTo(x1, y1);
-        ctx!.lineTo(x2, y2);
-        ctx!.stroke();
-      }
-      ctx!.shadowBlur = 0;
-    }
-
-    function drawMoonNode(x: number, y: number, active: boolean, t: number) {
-      ctx!.beginPath();
-      ctx!.arc(x, y, 11, 0, Math.PI * 2);
-      ctx!.fillStyle = active ? 'rgba(197, 243, 106, 0.18)' : 'rgba(255, 255, 255, 0.03)';
-      ctx!.fill();
-      ctx!.strokeStyle = active ? 'rgba(197, 243, 106, 0.70)' : 'rgba(255, 255, 255, 0.10)';
-      ctx!.lineWidth = 1.2;
-      ctx!.stroke();
-
-      // Moon Crescent
-      ctx!.strokeStyle = active ? LIME : '#71717a';
-      ctx!.fillStyle = active ? LIME : '#71717a';
-      ctx!.shadowColor = active ? LIME_GLOW : 'transparent';
-      ctx!.shadowBlur = active ? 8 : 0;
-
-      ctx!.save();
-      ctx!.translate(x - 0.5, y);
-      ctx!.beginPath();
-      ctx!.arc(0, 0, 4.8, -Math.PI * 0.45, Math.PI * 0.45, false);
-      ctx!.arc(-2.4, 0, 4.0, Math.PI * 0.35, -Math.PI * 0.35, true);
-      ctx!.closePath();
-      ctx!.fill();
-      ctx!.restore();
-      ctx!.shadowBlur = 0;
-    }
-
-    // 2. Portal Void & Back Rim
-    function drawPortalCavityAndBackRim(cx: number, cy: number, t: number) {
-      const pulse = 1 + 0.06 * Math.sin(t * 0.008);
-      const glowGrad = ctx!.createRadialGradient(cx, cy + 2, 4, cx, cy + 2, 38 * pulse);
-      glowGrad.addColorStop(0, 'rgba(197, 243, 106, 0.22)');
-      glowGrad.addColorStop(1, 'rgba(197, 243, 106, 0)');
-      ctx!.fillStyle = glowGrad;
-      ctx!.beginPath();
-      ctx!.ellipse(cx, cy + 2, 38 * pulse, 12 * pulse, 0, 0, Math.PI * 2);
-      ctx!.fill();
-
-      // Subterranean Void
-      const voidGrad = ctx!.createRadialGradient(cx, cy + 2, 0, cx, cy, rx);
-      voidGrad.addColorStop(0, '#000000');
-      voidGrad.addColorStop(0.65, '#030605');
-      voidGrad.addColorStop(1, '#0e1611');
-
-      ctx!.fillStyle = voidGrad;
-      ctx!.beginPath();
-      ctx!.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-      ctx!.fill();
-
-      // Inner shadow
-      ctx!.strokeStyle = 'rgba(0, 0, 0, 0.95)';
-      ctx!.lineWidth = 2.4;
-      ctx!.beginPath();
-      ctx!.ellipse(cx, cy + 0.8, rx - 1.5, ry - 0.8, 0, Math.PI, Math.PI * 2);
-      ctx!.stroke();
-
-      // Back rim
-      ctx!.strokeStyle = 'rgba(197, 243, 106, 0.50)';
-      ctx!.lineWidth = 1.6;
-      ctx!.beginPath();
-      ctx!.ellipse(cx, cy, rx, ry, 0, Math.PI, Math.PI * 2);
-      ctx!.stroke();
-    }
-
-    // 3. Portal Front Lip (Drawn ON TOP of character for 3D occlusion)
-    function drawPortalFrontRimOcclusion(cx: number, cy: number) {
-      ctx!.strokeStyle = LIME;
-      ctx!.lineWidth = 1.8;
-      ctx!.shadowColor = LIME_GLOW;
-      ctx!.shadowBlur = 8;
-      ctx!.beginPath();
-      ctx!.ellipse(cx, cy, rx, ry, 0, 0, Math.PI);
-      ctx!.stroke();
-      ctx!.shadowBlur = 0;
-
-      const lipGrad = ctx!.createLinearGradient(cx, cy, cx, cy + 3);
-      lipGrad.addColorStop(0, 'rgba(197, 243, 106, 0.35)');
-      lipGrad.addColorStop(1, 'rgba(197, 243, 106, 0)');
-      ctx!.fillStyle = lipGrad;
-      ctx!.beginPath();
-      ctx!.ellipse(cx, cy + 0.5, rx, 2, 0, 0, Math.PI);
-      ctx!.fill();
-    }
-
-    // 4. Scaled Kinematic Stickman Drawing
-    function drawStickman(
-      x: number,
-      y: number,
-      scale: number,
-      rotation: number,
-      walkCycle: number | null,
-      diveMode: 'dive' | 'emerge' | null,
-      color: string
-    ) {
-      ctx!.save();
-      ctx!.translate(x, y);
-      ctx!.scale(scale, scale);
-      ctx!.rotate(rotation);
-
-      ctx!.strokeStyle = color;
-      ctx!.fillStyle = color;
-      ctx!.lineWidth = 1.9;
-      ctx!.lineCap = 'round';
-      ctx!.lineJoin = 'round';
-      ctx!.shadowColor = color === AMBER ? AMBER_GLOW : LIME_GLOW;
-      ctx!.shadowBlur = 4;
-
-      const headR = 3.0;
-      let headX = 0,
-        headY = -22;
-      const neckX = 0;
-      let neckY = -17;
-      const pelvisX = 0;
-      let pelvisY = -8;
-
-      let leftArmAngle = 0;
-      let rightArmAngle = 0;
-      let leftLegAngle = 0;
-      let rightLegAngle = 0;
-      let leftKneeAngle = 0;
-      let rightKneeAngle = 0;
-
-      if (diveMode === 'dive') {
-        leftArmAngle = -Math.PI * 0.88;
-        rightArmAngle = -Math.PI * 0.85;
-        leftLegAngle = Math.PI * 0.10;
-        rightLegAngle = Math.PI * 0.08;
-        leftKneeAngle = 0;
-        rightKneeAngle = 0;
-      } else if (diveMode === 'emerge') {
-        leftArmAngle = -Math.PI * 0.55;
-        rightArmAngle = Math.PI * 0.24;
-        leftLegAngle = -Math.PI * 0.28;
-        rightLegAngle = Math.PI * 0.35;
-        leftKneeAngle = 0.5;
-        rightKneeAngle = 0.75;
-      } else if (walkCycle !== null) {
-        const s = Math.sin(walkCycle);
-
-        leftLegAngle = s * 0.65;
-        rightLegAngle = -s * 0.65;
-
-        leftKneeAngle = Math.max(0, -s) * 0.75;
-        rightKneeAngle = Math.max(0, s) * 0.75;
-
-        leftArmAngle = -s * 0.6;
-        rightArmAngle = s * 0.6;
-
-        const bob = -Math.abs(s) * 1.6;
-        headY += bob;
-        neckY += bob;
-        pelvisY += bob * 0.7;
-      }
-
-      // Head
-      ctx!.beginPath();
-      ctx!.arc(headX, headY, headR, 0, Math.PI * 2);
-      ctx!.fill();
-
-      // Torso
-      ctx!.beginPath();
-      ctx!.moveTo(neckX, neckY);
-      ctx!.lineTo(pelvisX, pelvisY);
-      ctx!.stroke();
-
-      // Limbs (compact lengths)
-      drawLimb(neckX, neckY + 1.5, rightArmAngle, 4.6, 0.4, 4.6);
-      drawLeg(pelvisX, pelvisY, rightLegAngle, rightKneeAngle, 4.8, 4.8);
-      drawLeg(pelvisX, pelvisY, leftLegAngle, leftKneeAngle, 4.8, 4.8);
-      drawLimb(neckX, neckY + 1.5, leftArmAngle, 4.6, 0.3, 4.6);
-
-      ctx!.restore();
-    }
-
-    function drawLimb(
-      sx: number,
-      sy: number,
-      shoulderAngle: number,
-      len1: number,
-      elbowBend: number,
-      len2: number
-    ) {
-      const elbowX = sx + Math.sin(shoulderAngle) * len1;
-      const elbowY = sy + Math.cos(shoulderAngle) * len1;
-      const handX = elbowX + Math.sin(shoulderAngle + elbowBend) * len2;
-      const handY = elbowY + Math.cos(shoulderAngle + elbowBend) * len2;
-
-      ctx!.beginPath();
-      ctx!.moveTo(sx, sy);
-      ctx!.lineTo(elbowX, elbowY);
-      ctx!.lineTo(handX, handY);
-      ctx!.stroke();
-    }
-
-    function drawLeg(
-      hx: number,
-      hy: number,
-      hipAngle: number,
-      kneeBend: number,
-      len1: number,
-      len2: number
-    ) {
-      const kneeX = hx + Math.sin(hipAngle) * len1;
-      const kneeY = hy + Math.cos(hipAngle) * len1;
-      const footX = kneeX + Math.sin(hipAngle + kneeBend) * len2;
-      const footY = kneeY + Math.cos(hipAngle + kneeBend) * len2;
-
-      ctx!.beginPath();
-      ctx!.moveTo(hx, hy);
-      ctx!.lineTo(kneeX, kneeY);
-      ctx!.lineTo(footX, footY);
-      ctx!.stroke();
-    }
-
-    let lastFrameTime = performance.now();
-
-    function frameLoop(now: number) {
-      const elapsed = now - startTime;
-      const dt = (now - lastFrameTime) / 1000;
-      lastFrameTime = now;
-
-      ctx!.clearRect(0, 0, width, height);
-
-      // 1. Draw Aesthetics, Track & Terminals
-      drawBackgroundAesthetics(elapsed);
-
-      // 2. Draw Portal Void Cavity & Back Rim
-      drawPortalCavityAndBackRim(portalX, portalY, elapsed);
-
-      // 3. Compute Character Kinematics
-      const portalEdgeOffset = 22;
-      const startX = isLTR ? sunX + 12 : moonX - 12;
-      const approachX = isLTR ? portalX - portalEdgeOffset : portalX + portalEdgeOffset;
-      const emergeX = isLTR ? portalX + portalEdgeOffset : portalX - portalEdgeOffset;
-      const destX = isLTR ? moonX - 12 : sunX + 12;
-
-      let charX = startX;
-      let charY = groundY;
-      let scale = 1;
-      let rotation = 0;
-      let walkCycle: number | null = null;
-      let diveMode: 'dive' | 'emerge' | null = null;
-      let visible = true;
-      let charColor = isLTR ? AMBER : LIME;
-
-      if (elapsed < 140) {
-        charX = startX;
-        charY = groundY;
-        walkCycle = 0;
-        rotation = 0;
-      } else if (elapsed >= 140 && elapsed < 480) {
-        const p = (elapsed - 140) / 340;
-        charX = startX + (approachX - startX) * p;
-        charY = groundY;
-        walkCycle = (elapsed - 140) * 0.024;
-        rotation = facingSign * 0.10;
-      } else if (elapsed >= 480 && elapsed < 660) {
-        const p = (elapsed - 480) / 180;
-        diveMode = 'dive';
-        charX = approachX + (portalX - approachX) * p;
-
-        const jumpArc = -11 * Math.sin(p * Math.PI);
-        const plunge = 15 * Math.pow(p, 2);
-        charY = groundY + jumpArc + plunge;
-
-        rotation = facingSign * (p * 1.35);
-        scale = Math.max(0.20, 1 - p * 0.80);
-
-        if (p > 0.65 && !diveParticleFired) {
-          spawnParticles(portalX, portalY, 5, false, isLTR ? AMBER : LIME);
-          diveParticleFired = true;
-        }
-
-        if (p > 0.88) {
-          visible = false;
-        }
-      } else if (elapsed >= 660 && elapsed < 700) {
-        visible = false;
-      } else if (elapsed >= 700 && elapsed < 920) {
-        charColor = isLTR ? LIME : AMBER;
-        const p = (elapsed - 700) / 220;
-        diveMode = 'emerge';
-        charX = portalX + (emergeX - portalX) * p;
-
-        if (p < 0.2 && !emergeParticleFired) {
-          spawnParticles(portalX, portalY, 6, true, charColor);
-          emergeParticleFired = true;
-        }
-
-        const leapArc = -15 * Math.sin(p * Math.PI);
-        charY = groundY + leapArc;
-
-        rotation = facingSign * ((1 - p) * -0.6);
-        scale = Math.min(1, 0.25 + p * 0.75);
-      } else if (elapsed >= 920 && elapsed < 1100) {
-        charColor = isLTR ? LIME : AMBER;
-        const p = (elapsed - 920) / 180;
-        charX = emergeX + (destX - emergeX) * p;
-        charY = groundY;
-        walkCycle = (elapsed - 920) * 0.024;
-        rotation = facingSign * 0.08;
-      } else {
-        charColor = isLTR ? LIME : AMBER;
-        charX = destX;
-        charY = groundY;
-        walkCycle = 0;
-        rotation = 0;
-      }
-
-      // 4. Draw Character
-      if (visible) {
-        ctx!.save();
-        if (!isLTR) {
-          ctx!.translate(charX, 0);
-          ctx!.scale(-1, 1);
-          ctx!.translate(-charX, 0);
-        }
-        drawStickman(charX, charY, scale, rotation, walkCycle, diveMode, charColor);
-        ctx!.restore();
-      }
-
-      // 5. Draw Portal Front Lip (Occlusion)
-      drawPortalFrontRimOcclusion(portalX, portalY);
-
-      // 6. Draw Sparkle Particles
-      updateParticles(dt);
-      drawParticles();
-
-      if (elapsed < 1300) {
-        animationFrameId = requestAnimationFrame(frameLoop);
-      }
-    }
-
-    animationFrameId = requestAnimationFrame(frameLoop);
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [isTransitioning, direction]);
-
   if (!isTransitioning) return null;
+
+  const isLTR = direction === 'light-to-dark';
+  const isDestinationLight = direction === 'dark-to-light';
+  const isSwapped = currentPhase === 'swapped';
+
+  // Active node logic: departure active before swap, destination active after swap
+  const sunActive = isLTR ? !isSwapped : isSwapped;
+  const moonActive = isLTR ? isSwapped : !isSwapped;
 
   return (
     <div
-      className={`absolute right-0 top-full mt-2 z-50 origin-top-right w-[calc(100vw-32px)] max-w-[290px] h-[86px] rounded-2xl overflow-hidden border pointer-events-auto bg-[#0B0E0C]/95 border-[#252D27] backdrop-blur-md transition-all duration-200 ${
-        isClosing ? 'opacity-0 scale-95' : 'animate-in fade-in zoom-in-95 opacity-100 scale-100'
-      }`}
+      className={`absolute right-0 top-full mt-2.5 z-50 origin-top-right w-[calc(100vw-32px)] max-w-[340px] h-[112px] rounded-2xl p-3 sm:p-3.5 overflow-hidden border backdrop-blur-md transition-all duration-300 pointer-events-auto select-none ${
+        isDestinationLight && isSwapped
+          ? 'bg-[#F9F6F0]/95 border-[#E2DDD3] text-zinc-800 shadow-[0_20px_50px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.8)]'
+          : 'bg-[#0B0E0C]/95 border-[#252D27] text-zinc-100 shadow-[0_20px_50px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.08),inset_0_1px_0_rgba(255,255,255,0.1)]'
+      } ${isClosing ? 'opacity-0 scale-95 transition-all duration-200' : 'animate-in fade-in zoom-in-95 opacity-100 scale-100'}`}
       style={{
-        boxShadow:
-          '0 14px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        perspective: '800px',
       }}
       aria-live="polite"
       aria-label="Theme transition in progress"
     >
-      <canvas
-        ref={canvasRef}
-        className="w-full h-full block"
-        style={{ width: '100%', height: '100%' }}
+      {/* Soft Ambient Interior Glow */}
+      <div
+        className={`absolute w-36 h-36 rounded-full blur-2xl pointer-events-none -top-10 left-20 transition-colors duration-500 opacity-25 ${
+          isDestinationLight ? 'bg-amber-400' : 'bg-[#C5F36A]'
+        }`}
       />
+
+      {/* Header Status Label */}
+      <div className="flex items-center justify-between font-mono text-[9px] font-bold tracking-widest uppercase mb-1 relative z-10">
+        <div
+          className={`flex items-center gap-1.5 transition-colors duration-300 ${
+            isDestinationLight ? 'text-amber-600' : 'text-[#C5F36A]'
+          }`}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+          <span>{isDestinationLight ? 'ENTERING LIGHT MODE' : 'ENTERING DARK MODE'}</span>
+        </div>
+        <span className="text-zinc-500 text-[8.5px]">PORTAL SHIFT</span>
+      </div>
+
+      {/* Ground Track Line */}
+      <div
+        className={`absolute left-5 right-5 bottom-7 h-[1.5px] rounded-full transition-colors duration-400 z-10 ${
+          isDestinationLight && isSwapped
+            ? 'bg-gradient-to-r from-zinc-300 via-zinc-400 to-zinc-300'
+            : 'bg-gradient-to-r from-zinc-800 via-zinc-600 to-zinc-800'
+        }`}
+      />
+
+      {/* Sun Node (Left) */}
+      <div
+        className={`absolute left-4 bottom-3.5 w-7 h-7 rounded-full flex items-center justify-center border z-10 transition-all duration-400 ${
+          sunActive
+            ? 'bg-amber-100 border-amber-400 text-amber-600 shadow-[0_0_14px_rgba(245,158,11,0.55)] scale-105'
+            : 'bg-zinc-900/80 border-zinc-700/60 text-zinc-500'
+        }`}
+      >
+        <Sun className="w-3.5 h-3.5" />
+      </div>
+
+      {/* Moon Node (Right) */}
+      <div
+        className={`absolute right-4 bottom-3.5 w-7 h-7 rounded-full flex items-center justify-center border z-10 transition-all duration-400 ${
+          moonActive
+            ? 'bg-zinc-900 border-[#C5F36A] text-[#C5F36A] shadow-[0_0_14px_rgba(197,243,106,0.55)] scale-105'
+            : 'bg-zinc-900/80 border-zinc-700/60 text-zinc-500'
+        }`}
+      >
+        <Moon className="w-3.5 h-3.5 fill-current" />
+      </div>
+
+      {/* 3D Portal Hole Cavity Depth (Behind Character: z-10) */}
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-[17px] w-[74px] h-[22px] z-10 pointer-events-none">
+        {/* Soft Portal Glow */}
+        <div
+          className={`absolute inset-0 rounded-[50%] blur-sm transition-all duration-500 ${
+            isDestinationLight ? 'bg-amber-500/20' : 'bg-[#C5F36A]/20'
+          }`}
+        />
+        {/* Deep Subterranean Black Void */}
+        <div
+          className={`w-full h-full rounded-[50%] border-1.5 transition-all duration-500 ${
+            isDestinationLight
+              ? 'bg-[radial-gradient(ellipse_at_center,#000000_20%,#15120c_65%,#2b2214_100%)] border-amber-500 shadow-[inset_0_5px_12px_rgba(0,0,0,0.95),0_0_16px_rgba(245,158,11,0.45)]'
+              : 'bg-[radial-gradient(ellipse_at_center,#000000_20%,#05080c_65%,#0f161f_100%)] border-[#C5F36A] shadow-[inset_0_5px_12px_rgba(0,0,0,0.95),0_0_16px_rgba(197,243,106,0.45)]'
+          }`}
+        />
+      </div>
+
+      {/* Character Actor Layer (z-20) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+        <div
+          className={`stickman-journey absolute bottom-7 left-0 w-[26px] h-[38px] ${
+            isLTR ? 'journey-ltr' : 'journey-rtl'
+          }`}
+        >
+          <svg
+            viewBox="0 0 32 48"
+            width="26"
+            height="38"
+            fill="none"
+            strokeWidth="2.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={isLTR ? 'stickman-ltr-color' : 'stickman-rtl-color'}
+          >
+            {/* Head and Torso with animated body bobbing */}
+            <g className="theme-body-bob">
+              <circle cx="16" cy="7.5" r="4.2" stroke="none" />
+              <line x1="16" y1="12" x2="16" y2="27" />
+            </g>
+            {/* Arms with animated natural swing */}
+            <path className="theme-arm-back" d="M16 17 L9 23" />
+            <path className="theme-arm-front" d="M16 17 L23 23" />
+            {/* Legs with animated natural swing */}
+            <path className="theme-leg-back" d="M16 27 L10 41" />
+            <path className="theme-leg-front" d="M16 27 L22 41" />
+          </svg>
+        </div>
+      </div>
+
+      {/* 3D Portal Front Lip (In Front of Character: z-30 for Genuine 3D Subterranean Occlusion) */}
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-[17px] w-[74px] h-[11px] z-30 pointer-events-none overflow-hidden">
+        <div
+          className={`w-[74px] h-[22px] -mt-[11px] rounded-[50%] border-1.5 transition-all duration-500 ${
+            isDestinationLight
+              ? 'border-amber-500 shadow-[0_2px_8px_rgba(245,158,11,0.6)]'
+              : 'border-[#C5F36A] shadow-[0_2px_8px_rgba(197,243,106,0.6)]'
+          }`}
+          style={{
+            clipPath: 'inset(50% 0 0 0)',
+          }}
+        />
+      </div>
     </div>
   );
 }
