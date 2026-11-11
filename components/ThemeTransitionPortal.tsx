@@ -32,13 +32,17 @@ export default function ThemeTransitionPortal({
 
   if (!isTransitioning) return null;
 
-  const isDestinationLight = direction === 'dark-to-light';
   const isSwapped = currentPhase === 'swapped';
+  // Both Light->Dark and Dark->Light execute identical physical choreography (Center -> Right Portal Dive).
+  // Separate theme visual styling:
+  // - dark-to-light: starts dark, transitions to light when swapped
+  // - light-to-dark: starts light, transitions to dark when swapped
+  const isLightNow = direction === 'dark-to-light' ? isSwapped : !isSwapped;
 
   return (
     <div
       className={`absolute right-0 top-1/2 -translate-y-1/2 z-50 origin-right w-[84px] md:w-[184px] h-[36px] md:h-[38px] rounded-full overflow-hidden border backdrop-blur-md pointer-events-auto select-none transition-all duration-300 ${
-        isDestinationLight && isSwapped
+        isLightNow
           ? 'bg-[#FBF9F5]/95 border-[#E2DDD3] text-zinc-800 shadow-[0_4px_16px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)]'
           : 'bg-[#121614]/95 border-[#252D27] text-zinc-100 shadow-[0_4px_16px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.06)]'
       } ${
@@ -52,28 +56,32 @@ export default function ThemeTransitionPortal({
       {/* Subtle Ambient Inner Glow */}
       <div
         className={`absolute w-14 h-14 rounded-full blur-lg pointer-events-none -top-3 right-3 transition-colors duration-500 opacity-20 ${
-          isDestinationLight ? 'bg-amber-400' : 'bg-[#C5F36A]'
+          isLightNow ? 'bg-amber-400' : 'bg-[#C5F36A]'
         }`}
       />
 
       {/* Left Icon: Morphing Sun / Moon Indicator */}
       <div
         className={`absolute left-2 md:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-5 md:h-5 flex items-center justify-center z-10 transition-all duration-400 ${
-          isDestinationLight && isSwapped
+          isLightNow
             ? 'text-amber-500 scale-105'
             : 'text-zinc-100 scale-100'
         }`}
       >
-        {isSwapped ? (
-          isDestinationLight ? (
-            <Sun className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current animate-in zoom-in-75 duration-300" />
-          ) : (
-            <Moon className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current text-[#C5F36A] animate-in zoom-in-75 duration-300" />
-          )
-        ) : isDestinationLight ? (
-          <Moon className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current text-zinc-300" />
+        {isLightNow ? (
+          <Sun
+            key="sun-icon"
+            className={`w-3.5 h-3.5 md:w-4 md:h-4 fill-current ${
+              isSwapped ? 'animate-in zoom-in-75 duration-300' : ''
+            }`}
+          />
         ) : (
-          <Sun className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current text-amber-400" />
+          <Moon
+            key="moon-icon"
+            className={`w-3.5 h-3.5 md:w-4 md:h-4 fill-current text-[#C5F36A] ${
+              isSwapped ? 'animate-in zoom-in-75 duration-300' : ''
+            }`}
+          />
         )}
       </div>
 
@@ -81,14 +89,14 @@ export default function ThemeTransitionPortal({
       <div className="absolute right-1.5 md:right-3 bottom-1.5 w-5 md:w-8 h-2 md:h-2.5 z-10 pointer-events-none">
         <div
           className={`w-full h-full rounded-[50%] border-1.5 transition-all duration-400 ${
-            isDestinationLight
+            isLightNow
               ? 'bg-[radial-gradient(ellipse_at_center,#000000_30%,#15110a_70%,#2b2010_100%)] border-amber-500 shadow-[inset_0_2px_6px_rgba(0,0,0,0.95),0_0_8px_rgba(245,158,11,0.35)]'
               : 'bg-[radial-gradient(ellipse_at_center,#000000_30%,#05080c_70%,#111822_100%)] border-[#C5F36A] shadow-[inset_0_2px_6px_rgba(0,0,0,0.95),0_0_8px_rgba(197,243,106,0.35)]'
           }`}
         />
       </div>
 
-      {/* Desktop Character Actor Layer (z-20) */}
+      {/* Desktop Character Actor Layer (z-20) - Identical Center-to-Right Choreography */}
       <div className="hidden md:block absolute inset-0 pointer-events-none overflow-hidden z-20">
         <div className="stickman-journey absolute bottom-1.5 left-0 w-[16px] h-[22px] animate-short-dive">
           <svg
@@ -115,7 +123,7 @@ export default function ThemeTransitionPortal({
         </div>
       </div>
 
-      {/* Mobile Character Actor Layer (z-20) */}
+      {/* Mobile Character Actor Layer (z-20) - Identical Center-to-Right Choreography */}
       <div className="block md:hidden absolute inset-0 pointer-events-none overflow-hidden z-20">
         <div className="stickman-journey absolute bottom-1.5 left-0 w-[12px] h-[16px] animate-short-dive-mobile">
           <svg
@@ -144,7 +152,7 @@ export default function ThemeTransitionPortal({
       <div className="absolute right-1.5 md:right-3 bottom-1.5 w-5 md:w-8 h-1 md:h-1.25 z-30 pointer-events-none overflow-hidden">
         <div
           className={`w-5 md:w-8 h-2 md:h-2.5 -mt-1 md:-mt-1.25 rounded-[50%] border-1.5 transition-all duration-400 ${
-            isDestinationLight
+            isLightNow
               ? 'border-amber-500 shadow-[0_1px_4px_rgba(245,158,11,0.5)]'
               : 'border-[#C5F36A] shadow-[0_1px_4px_rgba(197,243,106,0.5)]'
           }`}
