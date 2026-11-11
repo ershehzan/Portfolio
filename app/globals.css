@@ -256,197 +256,107 @@ a:not(.no-theme-trans) {
 }
 
 /* ==========================================================================
-   Theme Transition Portal Stickman Kinematics & Journey
+   Theme Transition Portal Stickman Kinematics (Reference 1:1 Compact Pill)
    ========================================================================== */
 .theme-arm-front {
-  transform-origin: 16px 17px;
-  animation: themeArmSwing 0.22s ease-in-out infinite alternate;
+  transform-origin: 12px 13px;
+  animation: themeArmSwing 0.20s ease-in-out infinite alternate;
 }
 .theme-arm-back {
-  transform-origin: 16px 17px;
-  animation: themeArmSwingBack 0.22s ease-in-out infinite alternate;
+  transform-origin: 12px 13px;
+  animation: themeArmSwingBack 0.20s ease-in-out infinite alternate;
 }
 .theme-leg-front {
-  transform-origin: 16px 27px;
-  animation: themeLegSwing 0.22s ease-in-out infinite alternate;
+  transform-origin: 12px 20px;
+  animation: themeLegSwing 0.20s ease-in-out infinite alternate;
 }
 .theme-leg-back {
-  transform-origin: 16px 27px;
-  animation: themeLegSwingBack 0.22s ease-in-out infinite alternate;
+  transform-origin: 12px 20px;
+  animation: themeLegSwingBack 0.20s ease-in-out infinite alternate;
 }
 .theme-body-bob {
-  animation: themeBodyBob 0.14s ease-in-out infinite alternate;
+  animation: themeBodyBob 0.13s ease-in-out infinite alternate;
 }
 
 @keyframes themeArmSwing {
-  from { transform: rotate(-35deg); }
-  to { transform: rotate(35deg); }
+  from { transform: rotate(-32deg); }
+  to { transform: rotate(32deg); }
 }
 @keyframes themeArmSwingBack {
-  from { transform: rotate(35deg); }
-  to { transform: rotate(-35deg); }
+  from { transform: rotate(32deg); }
+  to { transform: rotate(-32deg); }
 }
 @keyframes themeLegSwing {
-  from { transform: rotate(38deg); }
-  to { transform: rotate(-38deg); }
+  from { transform: rotate(36deg); }
+  to { transform: rotate(-36deg); }
 }
 @keyframes themeLegSwingBack {
-  from { transform: rotate(-38deg); }
-  to { transform: rotate(38deg); }
+  from { transform: rotate(-36deg); }
+  to { transform: rotate(36deg); }
 }
 @keyframes themeBodyBob {
   from { transform: translateY(0); }
-  to { transform: translateY(-2px); }
+  to { transform: translateY(-1.5px); }
 }
 
-/* Journey LTR: Sun (Left, x=24) to Moon (Right, x=290) */
-@keyframes journeyLTR {
+/* Reference Short Dive: Center (x=80) into Right Portal (x=158) */
+@keyframes shortDive {
   0% {
-    transform: translateX(24px) translateY(0) scale(1) rotate(0deg);
+    transform: translateX(80px) translateY(0) scale(0.9) rotate(0deg);
     opacity: 0;
   }
-  8% {
-    transform: translateX(45px) translateY(0) scale(1) rotate(0deg);
+  10% {
+    transform: translateX(88px) translateY(0) scale(1) rotate(0deg);
     opacity: 1;
   }
-  34% {
-    transform: translateX(115px) translateY(0) scale(1) rotate(4deg);
+  30% {
+    transform: translateX(118px) translateY(0) scale(1) rotate(4deg);
     opacity: 1;
   }
-  /* Jump Arc over portal */
-  42% {
-    transform: translateX(138px) translateY(-14px) scale(0.96) rotate(38deg);
+  /* Short Jump Arc at Portal Edge */
+  40% {
+    transform: translateX(138px) translateY(-10px) scale(0.95) rotate(35deg);
     opacity: 1;
   }
-  /* Dive down into 3D Cavity */
+  /* Plunge Down into Portal */
   48% {
-    transform: translateX(152px) translateY(6px) scale(0.65) rotate(70deg);
-    opacity: 0.8;
+    transform: translateX(152px) translateY(6px) scale(0.65) rotate(72deg);
+    opacity: 0.85;
   }
-  53% {
-    transform: translateX(158px) translateY(18px) scale(0.25) rotate(85deg);
+  /* Subterranean Occlusion behind Front Rim */
+  54% {
+    transform: translateX(158px) translateY(14px) scale(0.25) rotate(88deg);
     opacity: 0.3;
   }
-  /* Fully Submerged in subterranean void — theme swap occurs here */
-  56% {
-    transform: translateX(158px) translateY(24px) scale(0.08) rotate(90deg);
+  /* Submerged Void: Theme Swap Occurs at 56% */
+  58% {
+    transform: translateX(158px) translateY(18px) scale(0.08) rotate(90deg);
     opacity: 0;
   }
-  /* Emerge from Cavity with destination color */
-  62% {
-    transform: translateX(158px) translateY(12px) scale(0.35) rotate(-35deg);
-    opacity: 0.4;
+  /* Emerge Upward from Subterranean Portal */
+  64% {
+    transform: translateX(158px) translateY(6px) scale(0.45) rotate(-25deg);
+    opacity: 0.5;
   }
-  70% {
-    transform: translateX(178px) translateY(-16px) scale(0.95) rotate(-14deg);
+  72% {
+    transform: translateX(146px) translateY(-12px) scale(0.95) rotate(-10deg);
     opacity: 1;
   }
-  76% {
-    transform: translateX(198px) translateY(0) scale(1) rotate(0deg);
+  80% {
+    transform: translateX(126px) translateY(0) scale(1) rotate(0deg);
     opacity: 1;
   }
   92% {
-    transform: translateX(275px) translateY(0) scale(1) rotate(0deg);
+    transform: translateX(95px) translateY(0) scale(1) rotate(0deg);
     opacity: 1;
   }
   100% {
-    transform: translateX(290px) translateY(0) scale(1) rotate(0deg);
+    transform: translateX(85px) translateY(0) scale(1) rotate(0deg);
     opacity: 0;
   }
 }
 
-/* Journey RTL: Moon (Right, x=290) to Sun (Left, x=24) */
-@keyframes journeyRTL {
-  0% {
-    transform: translateX(290px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 0;
-  }
-  8% {
-    transform: translateX(270px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 1;
-  }
-  34% {
-    transform: translateX(198px) translateY(0) scaleX(-1) scaleY(1) rotate(4deg);
-    opacity: 1;
-  }
-  /* Jump Arc over portal */
-  42% {
-    transform: translateX(175px) translateY(-14px) scaleX(-1) scaleY(0.96) rotate(38deg);
-    opacity: 1;
-  }
-  /* Dive down into 3D Cavity */
-  48% {
-    transform: translateX(162px) translateY(6px) scaleX(-1) scaleY(0.65) rotate(70deg);
-    opacity: 0.8;
-  }
-  53% {
-    transform: translateX(154px) translateY(18px) scaleX(-1) scaleY(0.25) rotate(85deg);
-    opacity: 0.3;
-  }
-  /* Fully Submerged in subterranean void — theme swap occurs here */
-  56% {
-    transform: translateX(154px) translateY(24px) scale(0.08) rotate(-90deg);
-    opacity: 0;
-  }
-  /* Emerge from Cavity towards left */
-  62% {
-    transform: translateX(154px) translateY(12px) scaleX(-1) scaleY(0.35) rotate(-35deg);
-    opacity: 0.4;
-  }
-  70% {
-    transform: translateX(134px) translateY(-16px) scaleX(-1) scaleY(0.95) rotate(-14deg);
-    opacity: 1;
-  }
-  76% {
-    transform: translateX(115px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 1;
-  }
-  92% {
-    transform: translateX(45px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(28px) translateY(0) scaleX(-1) scaleY(1) rotate(0deg);
-    opacity: 0;
-  }
-}
-
-.journey-ltr {
-  animation: journeyLTR 1.25s cubic-bezier(0.35, 0, 0.25, 1) forwards;
-}
-
-.journey-rtl {
-  animation: journeyRTL 1.25s cubic-bezier(0.35, 0, 0.25, 1) forwards;
-}
-
-/* Stickman color shift when submerged */
-@keyframes charColorShiftLTR {
-  0%, 53% {
-    stroke: #F59E0B;
-    fill: #F59E0B;
-  }
-  58%, 100% {
-    stroke: #C5F36A;
-    fill: #C5F36A;
-  }
-}
-
-@keyframes charColorShiftRTL {
-  0%, 53% {
-    stroke: #C5F36A;
-    fill: #C5F36A;
-  }
-  58%, 100% {
-    stroke: #F59E0B;
-    fill: #F59E0B;
-  }
-}
-
-.stickman-ltr-color {
-  animation: charColorShiftLTR 1.25s forwards;
-}
-
-.stickman-rtl-color {
-  animation: charColorShiftRTL 1.25s forwards;
+.animate-short-dive {
+  animation: shortDive 1.05s cubic-bezier(0.35, 0, 0.25, 1) forwards;
 }
 
